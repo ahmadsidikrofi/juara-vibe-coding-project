@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, deleteDoc, doc } from 'firebase/firestore';
 
 /**
  * Menyimpan data proyek (hasil diagnosis AI) ke koleksi 'projects' di Firestore.
@@ -13,7 +13,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 export async function saveProject(userId, imageUrl, diagnosisResult, uniqueId) {
   try {
     const projectsRef = collection(db, 'projects');
-    
+
     const docRef = await addDoc(projectsRef, {
       userId: userId,
       imageUrl: imageUrl,
@@ -22,12 +22,29 @@ export async function saveProject(userId, imageUrl, diagnosisResult, uniqueId) {
       status: 'saved',
       createdAt: serverTimestamp(),
     });
-    
-    console.log("Project berhasil disimpan dengan ID: ", docRef.id);
+
+    // console.log("Project berhasil disimpan dengan ID: ", docRef.id);
     return docRef.id;
-    
+
   } catch (error) {
-    console.error("Error saat menyimpan project ke Firestore: ", error);
+    // console.error("Error saat menyimpan project ke Firestore: ", error);
     throw new Error("Gagal menyimpan project ke database. Silakan coba lagi nanti.");
+  }
+}
+
+/**
+ * Menghapus data proyek dari koleksi 'projects' di Firestore.
+ * 
+ * @param {string} projectId - ID dokumen yang akan dihapus
+ * @returns {Promise<void>}
+ */
+export async function deleteProject(projectId) {
+  try {
+    const docRef = doc(db, 'projects', projectId);
+    await deleteDoc(docRef);
+    // console.log("Project berhasil dihapus dengan ID: ", projectId);
+  } catch (error) {
+    // console.error("Error saat menghapus project dari Firestore: ", error)
+    throw new Error("Gagal menghapus project. Silakan coba lagi.");
   }
 }

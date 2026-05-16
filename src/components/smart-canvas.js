@@ -107,16 +107,22 @@ export function SmartCanvas() {
 
       try {
         const data = JSON.parse(fullText);
-        
+
         if (data.isValid === false) {
-          toast.error(data.alasan || "Gambar tidak dikenali sebagai pakaian.");
+          toast.error(data.alasan || "Gambar tidak dikenali sebagai pakaian.", {
+            duration: 5000,
+            position: 'top-center'
+          });
           setIsAnalyzing(false);
           setAnalyzingText("Menganalisis...");
           return;
         }
 
         if (data.isValid === true && data.isDamaged === false) {
-          toast.success(data.pesan || "Pakaian terlihat sempurna!");
+          toast.success(data.pesan || "Pakaian terlihat sempurna!", {
+            duration: 5000,
+            position: 'top-center'
+          });
           setIsAnalyzing(false);
           setAnalyzingText("Menganalisis...");
           return;
@@ -132,7 +138,7 @@ export function SmartCanvas() {
           }));
           router.push('/blueprint');
         };
-        
+
       } catch (parseError) {
         console.error("Failed to parse JSON stream:", fullText);
         throw new Error("Gagal membaca respons dari AI.");

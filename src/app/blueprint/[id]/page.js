@@ -1,67 +1,103 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2 } from "lucide-react";
-import { saveProject } from "@/lib/projectService";
-import { useAuth } from "@/context/auth-context";
+import { motion } from "framer-motion";
+import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, Trash2 } from "lucide-react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { deleteProject } from "@/lib/projectService";
+import toast from "react-hot-toast";
 import { TailorCard } from "@/components/tailor-card";
 import { DiyStepper } from "@/components/diy-stepper";
+import ButtonShineHoverDemo from "@/components/shadcn-space/radix/button/button-03";
+import Dialog02 from "@/components/shadcn-space/radix/dialog/dialog-02";
 
-export default function BlueprintPage() {
+export default function BlueprintDetailPage({ params }) {
   const router = useRouter();
-  const { user } = useAuth();
+  const unwrappedParams = use(params);
+  const projectId = unwrappedParams.id;
+
   const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  // Auto-save states
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
-
-  // Generate Unique ID consistently
-  const uniqueId = useMemo(() => `#PRMK-${Math.floor(Math.random() * 90000) + 10000}`, []);
-
-  useEffect(() => {
-    const storedData = sessionStorage.getItem("blueprintData");
-    if (!storedData) {
-      router.push("/");
-      return;
-    }
+  const handleDelete = async () => {
+    setIsDeleting(true);
     try {
-      setData(JSON.parse(storedData));
-    } catch (e) {
-      router.push("/");
+      await deleteProject(projectId);
+      toast.success("Pakaian berhasil dihapus.");
+      router.push("/my-wardrobe");
+    } catch (err) {
+      console.error("Gagal menghapus:", err);
+      toast.error("Gagal menghapus pakaian.");
+      setIsDeleting(false);
     }
-  }, [router]);
+  };
 
-  // Auto-save logic
   useEffect(() => {
-    if (data && user && !hasSaved && !isSaving) {
-      const autoSave = async () => {
-        setIsSaving(true);
-        try {
-          await saveProject(user.uid, data.image, data.analysis, uniqueId);
-          setHasSaved(true);
-        } catch (error) {
-          console.error("Auto-save failed:", error);
-        } finally {
-          setIsSaving(false);
+    const fetchProjectData = async () => {
+      if (!projectId) return;
+
+      try {
+        const docRef = doc(db, "projects", projectId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const docData = docSnap.data();
+          setData({
+            image: docData.imageUrl,
+            analysis: docData.diagnosis,
+            uniqueId: docData.projectId || `#PRMK-${projectId.substring(0, 5).toUpperCase()}`
+          });
+        } else {
+          setError("Blueprint tidak ditemukan. Mungkin sudah dihapus atau URL tidak valid.");
         }
-      };
+      } catch (err) {
+        console.error("Error fetching project:", err);
+        setError("Gagal memuat blueprint dari server. Silakan coba lagi.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      autoSave();
-    }
-  }, [data, user, hasSaved, isSaving, uniqueId]);
+    fetchProjectData();
+  }, [projectId]);
 
-  if (!data) {
+  if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-clay-cream">
-        <div className="w-12 h-12 border-4 border-clay-sage border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-clay-cream p-6 md:p-12 pb-24 font-sans max-w-6xl mx-auto flex flex-col gap-8">
+        <div className="h-12 w-full md:w-1/2 lg:w-1/3 bg-clay-sage/10 animate-pulse rounded-2xl mb-4 mt-8"></div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-5 h-[500px] md:h-[700px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            <div className="h-[300px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
+            <div className="h-[400px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
+          </div>
+        </div>
       </div>
     );
   }
 
-  const { image, analysis } = data;
+  if (error || !data) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-clay-cream gap-6 font-sans">
+        <div className="w-24 h-24 bg-clay-pink/10 text-clay-pink rounded-full flex items-center justify-center shadow-inner">
+          <ShieldAlert className="w-12 h-12" />
+        </div>
+        <h2 className="text-2xl font-bold text-clay-ink">{error || "Terjadi Kesalahan"}</h2>
+        <button
+          onClick={() => router.push("/my-wardrobe")}
+          className="px-8 py-4 bg-clay-sage text-white font-bold rounded-2xl shadow-md shadow-clay-sage/20 hover:bg-clay-sage/90 transition-colors"
+        >
+          Kembali ke Wardrobe
+        </button>
+      </div>
+    );
+  }
+
+  const { image, analysis, uniqueId } = data;
 
   return (
     <div className="min-h-screen bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24">
@@ -72,48 +108,45 @@ export default function BlueprintPage() {
         className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row items-start md:items-center gap-4"
       >
         <button
-          onClick={() => router.push("/")}
-          className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1"
+          onClick={() => router.push("/my-wardrobe")}
+          className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1 shrink-0"
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <div className="flex w-full items-start gap-4">
-          <div>
-            <div className="flex items-start gap-2">
-              <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                Project Blueprint: <span className="text-clay-sage">{analysis.jenisPakaian || "Pakaian"}</span>
-              </h1>
-            </div>
-
-            <div className="flex items-center flex-wrap gap-x-8 gap-y-2 mt-2">
-              <p className="text-clay-ink/60 text-lg font-medium">Unique ID: {uniqueId}</p>
-            </div>
+        <div>
+          <div className="flex items-start gap-2">
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+              Project Blueprint: <span className="text-clay-sage">{analysis.jenisPakaian || "Pakaian"}</span>
+            </h1>
           </div>
 
-          <AnimatePresence mode="wait">
-            {isSaving && (
-              <motion.div
-                key="saving"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0 }}
-                className="bg-clay-sage/10 text-clay-sage px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2 border border-clay-sage/20 shadow-md"
+          <div className="flex items-center flex-wrap gap-x-8 gap-y-2 mt-2">
+            <p className="text-clay-ink/60 text-lg font-medium">Unique ID: {uniqueId}</p>
+          </div>
+        </div>
+
+        {/* Header Action: Delete Button */}
+        <div className="w-full md:w-auto flex justify-end md:ml-auto">
+          <Dialog02
+            title="Hapus Pakaian Ini?"
+            description="Apakah Anda yakin ingin menghapus pakaian ini dari My Wardrobe? Tindakan ini tidak dapat dibatalkan."
+            confirmText="Ya, Hapus"
+            cancelText="Batal"
+            onConfirm={handleDelete}
+            trigger={
+              <button
+                disabled={isDeleting}
+                className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-bold rounded-2xl shadow-sm border border-red-100 hover:bg-red-100 transition-colors disabled:opacity-70 cursor-pointer"
               >
-                <div className="w-2 h-2 rounded-full bg-clay-sage animate-ping"></div>
-                ✨ Mengamankan pakaianmu...
-              </motion.div>
-            )}
-            {hasSaved && (
-              <motion.div
-                key="saved"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 border border-green-200 shadow-md"
-              >
-                👌Tersimpan di My Wardrobe
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {isDeleting ? (
+                  <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                {isDeleting ? "Menghapus..." : "Hapus"}
+              </button>
+            }
+          />
         </div>
       </motion.div>
 
@@ -127,7 +160,7 @@ export default function BlueprintPage() {
           className="lg:col-span-5 flex flex-col gap-6"
         >
           <div className="glass rounded-3xl p-4 shadow-xl border border-white/50 relative overflow-hidden group">
-            <div className="relative rounded-2xl overflow-hidden aspect-3/4 bg-black/5">
+            <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-black/5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={image}
@@ -159,7 +192,7 @@ export default function BlueprintPage() {
 
           {/* Eco Impact Box */}
           {analysis.ecoImpact && (
-            <div className="bg-linear-to-br from-clay-sage/20 to-clay-sage/5 rounded-3xl p-6 border border-clay-sage/20 shadow-sm relative overflow-hidden">
+            <div className="bg-gradient-to-br from-clay-sage/20 to-clay-sage/5 rounded-3xl p-6 border border-clay-sage/20 shadow-sm relative overflow-hidden">
               <div className="absolute -right-6 -top-6 text-clay-sage/10 transform rotate-12">
                 <Leaf className="w-32 h-32" />
               </div>

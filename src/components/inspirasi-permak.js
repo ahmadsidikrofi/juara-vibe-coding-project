@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import ButtonWithIconDemo from "./shadcn-space/radix/button/button-01";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 const baseInspirations = [
   {
@@ -140,7 +141,9 @@ export function InspirasiPermak() {
       </div>
 
       <div className="mt-16 text-center animate-slide-up relative z-20">
-        <ButtonWithIconDemo className="bg-clay-ink text-white shadow-xl hover:shadow-2xl text-lg h-14" text="Lihat Lebih Banyak di My Wardrobe" />
+        <Link href="/my-wardrobe">
+          <ButtonWithIconDemo className="bg-clay-ink text-white shadow-xl hover:shadow-2xl text-lg h-14" text="Lihat Lebih Banyak di My Wardrobe" />
+        </Link>
       </div>
     </section>
   );
