@@ -7,7 +7,7 @@ import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2 } from "lucide-rea
 import { saveProject } from "@/lib/projectService";
 import { useAuth } from "@/context/auth-context";
 import { TailorCard } from "@/components/tailor-card";
-import { DiyStepper } from "@/components/diy-stepper";
+import { DiyStepper } from "@/components/diy-stepper"
 
 export default function BlueprintPage() {
   const router = useRouter();

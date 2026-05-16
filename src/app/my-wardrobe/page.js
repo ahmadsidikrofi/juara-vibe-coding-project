@@ -6,14 +6,17 @@ import { useAuth } from "@/context/auth-context";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import Masonry from "@/components/masonry";
-import { ArrowLeft, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowLeft, Sparkles, LayoutGrid, Rotate3D } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import InfiniteMenu from "@/components/infinite-menu";
+import { cn } from "@/lib/utils";
 
 const MyWardrobePage = () => {
     const { user } = useAuth();
     const router = useRouter();
     const [wardrobeItems, setWardrobeItems] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [viewMode, setViewMode] = useState("masonry"); // "masonry" | "infinite"
 
     useEffect(() => {
         if (!user) {
@@ -33,12 +36,18 @@ const MyWardrobePage = () => {
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
                     items.push({
+                        // Common
                         id: doc.id,
+                        createdAt: data.createdAt?.toMillis() || 0,
+                        // Masonry Specific
                         img: data.imageUrl,
                         url: `/blueprint/${doc.id}`,
-                        // Memberikan random height agar efek masonry (susun bata) lebih terlihat estetis
                         height: Math.floor(Math.random() * (600 - 300 + 1)) + 300,
-                        createdAt: data.createdAt?.toMillis() || 0,
+                        // Infinite Menu Specific
+                        image: data.imageUrl,
+                        link: `/blueprint/${doc.id}`,
+                        title: data.diagnosis?.jenisPakaian || 'Pakaian',
+                        description: data.diagnosis?.bahan || 'Tidak diketahui',
                     });
                 });
 
@@ -85,6 +94,30 @@ const MyWardrobePage = () => {
                     </h1>
                     <p className="text-clay-ink/60 text-lg mt-1 font-medium">Koleksi pakaian yang telah kamu scan.</p>
                 </div>
+
+                {/* View Toggle Tabs */}
+                {!loading && wardrobeItems.length > 0 && (
+                    <div className="ml-auto flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
+                        <button
+                            onClick={() => setViewMode("masonry")}
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
+                                viewMode === "masonry" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
+                            )}>
+                            <LayoutGrid className="w-4 h-4" />
+                            Grid
+                        </button>
+                        <button
+                            onClick={() => setViewMode("infinite")}
+                            className={cn(
+                                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
+                                viewMode === "infinite" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
+                            )}>
+                            <Rotate3D className="w-4 h-4" />
+                            3D Gallery
+                        </button>
+                    </div>
+                )}
             </motion.div>
 
             <div className="max-w-6xl mx-auto">
@@ -117,18 +150,43 @@ const MyWardrobePage = () => {
                         </button>
                     </motion.div>
                 ) : (
-                    // Masonry Component
-                    <Masonry
-                        items={wardrobeItems}
-                        ease="power3.out"
-                        duration={0.6}
-                        stagger={0.05}
-                        animateFrom="bottom"
-                        scaleOnHover
-                        hoverScale={0.95}
-                        blurToFocus
-                        colorShiftOnHover={false}
-                    />
+                    <AnimatePresence mode="wait">
+                        {viewMode === "masonry" ? (
+                            <motion.div
+                                key="masonry"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Masonry
+                                    items={wardrobeItems}
+                                    ease="power3.out"
+                                    duration={0.6}
+                                    stagger={0.05}
+                                    animateFrom="bottom"
+                                    scaleOnHover
+                                    hoverScale={0.95}
+                                    blurToFocus
+                                    colorShiftOnHover={false}
+                                />
+                            </motion.div>
+                        ) : (
+                            <motion.div
+                                key="infinite"
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 1.05 }}
+                                transition={{ duration: 0.5, ease: "easeOut" }}
+                                className="w-full h-[600px] md:h-[700px] rounded-3xl overflow-hidden shadow-2xl border border-white/50 relative bg-black/5"
+                            >
+                                <InfiniteMenu 
+                                    items={wardrobeItems}
+                                    scale={1}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 )}
             </div>
         </div>
