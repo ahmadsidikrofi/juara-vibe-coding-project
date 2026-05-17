@@ -2,10 +2,10 @@
 
 import { useState, useRef } from "react";
 import { UploadCloud, Image as ImageIcon, X, Loader2 } from "lucide-react";
-import ButtonDemo from "./shadcn-space/radix/button/button-16";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import ButtonRipleSpotlight from "./shadcn-space/radix/button/button-16";
 
 export function SmartCanvas() {
   const [dragActive, setDragActive] = useState(false);
@@ -252,7 +252,7 @@ export function SmartCanvas() {
             <p className="text-clay-ink/60 max-w-lg text-lg">
               Tarik dan lepas foto pakaianmu di area ini, atau klik untuk memilih file dari perangkatmu. Kami akan menganalisis kerusakannya.
             </p>
-            <ButtonDemo text="Pilih Foto (JPG, PNG)"></ButtonDemo>
+            <ButtonRipleSpotlight text="Pilih Foto (JPG, PNG)"></ButtonRipleSpotlight>
           </div>
         )}
       </div>

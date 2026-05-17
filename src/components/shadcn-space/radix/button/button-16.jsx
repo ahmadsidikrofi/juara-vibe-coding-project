@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const ButtonDemo = ({ text, className, ...props }) => {
+const ButtonRipleSpotlight = ({ text, className, icon, onclick, ...props }) => {
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const buttonRef = useRef(null);
 
@@ -20,6 +20,7 @@ const ButtonDemo = ({ text, className, ...props }) => {
 
   return (
     <Button
+      onClick={onclick}
       ref={buttonRef}
       onMouseEnter={handleMouseEnter}
       variant="outline"
@@ -36,10 +37,10 @@ const ButtonDemo = ({ text, className, ...props }) => {
         }} />
       <span
         className="relative z-10 transition-colors duration-500 pointer-events-none group-hover:text-primary-foreground">
-        {text}
+        {icon} {text}
       </span>
     </Button>
   );
 };
 
-export default ButtonDemo;
+export default ButtonRipleSpotlight;

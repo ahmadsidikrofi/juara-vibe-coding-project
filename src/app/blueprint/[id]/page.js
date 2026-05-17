@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, Trash2 } from "lucide-react";
+import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, Trash2, Sparkles } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { deleteProject } from "@/lib/projectService";
@@ -125,8 +125,16 @@ export default function BlueprintDetailPage({ params }) {
           </div>
         </div>
 
-        {/* Header Action: Delete Button */}
-        <div className="w-full md:w-auto flex justify-end md:ml-auto">
+        {/* Header Actions */}
+        <div className="w-full md:w-auto flex flex-col md:flex-row justify-end items-center md:ml-auto gap-4">
+          <button
+            onClick={() => router.push(`/studio/${projectId}`)}
+            className="w-full md:w-auto px-6 py-4 bg-clay-sage text-white font-bold rounded-2xl shadow-[inset_0px_-4px_8px_rgba(0,0,0,0.1)] hover:shadow-[inset_0px_-2px_4px_rgba(0,0,0,0.1)] hover:translate-y-0.5 transition-all flex items-center justify-center gap-2"
+          >
+            <Sparkles className="w-5 h-5" />
+            Buka Remake Studio
+          </button>
+
           <Dialog02
             title="Hapus Pakaian Ini?"
             description="Apakah Anda yakin ingin menghapus pakaian ini dari My Wardrobe? Tindakan ini tidak dapat dibatalkan."
@@ -134,17 +142,17 @@ export default function BlueprintDetailPage({ params }) {
             cancelText="Batal"
             onConfirm={handleDelete}
             trigger={
-              <button
-                disabled={isDeleting}
-                className="flex items-center gap-2 px-5 py-2.5 bg-red-50 text-red-600 font-bold rounded-2xl shadow-sm border border-red-100 hover:bg-red-100 transition-colors disabled:opacity-70 cursor-pointer"
-              >
-                {isDeleting ? (
+              <ButtonShineHoverDemo
+                icon={isDeleting ? (
                   <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <Trash2 className="w-4 h-4" />
                 )}
-                {isDeleting ? "Menghapus..." : "Hapus"}
-              </button>
+                text={isDeleting ? "Menghapus..." : "Hapus"}
+                disabled={isDeleting}
+                className="flex items-center gap-2 p-5 bg-red-50 text-red-600 font-bold rounded-2xl shadow-sm border border-red-100 hover:bg-red-100 transition-colors disabled:opacity-70 cursor-pointer"
+              >
+              </ButtonShineHoverDemo>
             }
           />
         </div>

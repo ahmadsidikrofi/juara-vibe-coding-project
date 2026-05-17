@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { mat4, quat, vec2, vec3 } from 'gl-matrix';
+import ButtonRipleSpotlight from './shadcn-space/radix/button/button-16';
+import { ArrowBigUpDashIcon } from 'lucide-react';
 
 const discVertShaderSource = `#version 300 es
 
@@ -972,7 +974,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
           select-none
           absolute
           text-clay-ink
-          [font-size:4rem]
+          text-[4rem]
           font-bold
           left-[1.6em]
           top-1/2
@@ -982,12 +984,12 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
           transition-all
           ease-[cubic-bezier(0.25,0.1,0.25,1.0)]
           ${isMoving
-                                ? 'opacity-0 pointer-events-none duration-[100ms]'
-                                : 'opacity-100 pointer-events-auto duration-[500ms]'
+                                ? 'opacity-0 pointer-events-none duration-100'
+                                : 'opacity-100 pointer-events-auto duration-500'
                             }
         `}
                     >
-                        {activeItem.title}
+                        {activeItem.title.length > 15 ? activeItem.title.slice(0, 10) + '...' : activeItem.title}
                     </h2>
 
                     <p
@@ -1003,16 +1005,17 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
           transition-all
           ease-[cubic-bezier(0.25,0.1,0.25,1.0)]
           ${isMoving
-                                ? 'opacity-0 pointer-events-none duration-[100ms] translate-x-[-60%] -translate-y-1/2'
-                                : 'opacity-100 pointer-events-auto duration-[500ms] translate-x-[-90%] -translate-y-1/2'
+                                ? 'opacity-0 pointer-events-none duration-100 translate-x-[-60%] -translate-y-1/2'
+                                : 'opacity-100 pointer-events-auto duration-500 translate-x-[-90%] -translate-y-1/2'
                             }
         `}
                     >
                         {activeItem.description}
                     </p>
 
-                    <div
+                    <ButtonRipleSpotlight
                         onClick={handleButtonClick}
+                        text={<ArrowBigUpDashIcon className='size-8 rotate-45' />}
                         className={`
           absolute
           left-1/2
@@ -1021,7 +1024,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
           h-[60px]
           grid
           place-items-center
-          bg-[#00ffff]
+          bg-secondary
           border-[5px]
           border-black
           rounded-full
@@ -1029,13 +1032,13 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
           transition-all
           ease-[cubic-bezier(0.25,0.1,0.25,1.0)]
           ${isMoving
-                                ? 'bottom-[-80px] opacity-0 pointer-events-none duration-[100ms] scale-0 -translate-x-1/2'
-                                : 'bottom-[3.8em] opacity-100 pointer-events-auto duration-[500ms] scale-100 -translate-x-1/2'
+                                ? 'bottom-[-80px] opacity-0 pointer-events-none duration-100 scale-0 -translate-x-1/2'
+                                : 'bottom-[3.8em] opacity-100 pointer-events-auto duration-500 scale-100 -translate-x-1/2'
                             }
-        `}
+`}
                     >
-                        <p className="select-none relative text-[#120F17] top-[2px] text-[26px]">&#x2197;</p>
-                    </div>
+
+                    </ButtonRipleSpotlight>
                 </>
             )}
         </div>

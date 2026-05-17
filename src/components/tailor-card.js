@@ -2,9 +2,16 @@
 
 import { Scissors, Copy } from "lucide-react";
 import toast from "react-hot-toast";
+import ButtonShineHoverDemo from "./shadcn-space/radix/button/button-03";
+import ButtonCopy from "./shadcn-space/radix/button/button-18";
 
 export function TailorCard({ penjahit }) {
   if (!penjahit) return null;
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(penjahit.pesan);
+
+  };
 
   return (
     <div className="bg-linear-to-r from-clay-sage/10 to-white rounded-3xl p-6 shadow-sm border border-clay-sage/20 group hover:shadow-md transition-all">
@@ -22,18 +29,19 @@ export function TailorCard({ penjahit }) {
         <span className="text-4xl text-clay-sage/20 absolute -top-1 -left-1 font-serif">"</span>
         <span className="relative z-10 leading-relaxed">{penjahit.pesan}</span>
       </div>
-      <button
-        onClick={() => {
-          navigator.clipboard.writeText(penjahit.pesan);
-          toast.success("Instruksi disalin! Siap dikirim ke penjahit kesayanganmu", {
-            duration: 5000
-          });
-        }}
-        className="w-full py-3 bg-clay-sage text-white font-bold rounded-xl shadow-md shadow-clay-sage/20 hover:bg-clay-sage/90 transition-colors flex items-center justify-center gap-2"
+      {/* <ButtonShineHoverDemo
+        icon={<Copy className="w-4 h-4" />}
+        text="Salin Teks Instruksi"
+
+        className="w-full py-4 bg-clay-sage text-white font-bold rounded-xl shadow-md shadow-clay-sage/20 hover:bg-clay-sage/90 transition-colors flex items-center justify-center gap-2"
       >
-        <Copy className="w-4 h-4" />
-        Salin Teks Instruksi
-      </button>
+      </ButtonShineHoverDemo> */}
+      <ButtonCopy
+        text="Salin instruksi"
+        onClick={handleCopy}
+      >
+
+      </ButtonCopy>
     </div>
   );
 }

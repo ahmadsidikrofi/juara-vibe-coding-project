@@ -91,7 +91,7 @@ const ScrollingColumn = ({ items, duration, reverse = false }) => {
               />
 
               {/* Overlay Gradient for readability */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-b from-black/40 via-transparent to-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
               {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col items-start gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-[-10px] group-hover:translate-y-0">

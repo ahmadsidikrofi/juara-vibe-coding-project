@@ -83,7 +83,7 @@ export function AuthProvider({ children }) {
 
             {/* Inner solid clay circle */}
             <div className="relative w-16 h-16 bg-white rounded-full shadow-lg shadow-clay-ink/10 flex items-center justify-center z-10">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-clay-lavender to-clay-pink opacity-80 animate-pulse" />
+              <div className="w-8 h-8 rounded-full bg-linear-to-br from-clay-lavender to-clay-pink opacity-80 animate-pulse" />
             </div>
           </div>
 
