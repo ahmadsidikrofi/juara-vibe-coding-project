@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const footerLinks = [
   {
@@ -29,6 +32,10 @@ const footerLinks = [
 ];
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname === "/login") return null;
+
   return (
     <footer className="bg-[oklch(95%_0.02_150)] rounded-t-[3rem] pt-16 pb-8 px-6 md:px-12 mt-20 w-full">
       <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between gap-16 md:gap-12">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -17,11 +18,13 @@ import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch } fr
 import ButtonDemo from "./shadcn-space/radix/button/button-16";
 
 export function Navbar() {
+  const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, loginWithGoogle, logout } = useAuth();
 
   useEffect(() => {
+    if (pathname === "/login") return;
     const handleScroll = () => {
       if (window.scrollY > 50) {
         setScrolled(true);
@@ -32,7 +35,9 @@ export function Navbar() {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [pathname]);
+
+  if (pathname === "/login") return null;
 
   return (
     <header
