@@ -23,7 +23,7 @@ export function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 200) {
+      if (window.scrollY > 50) {
         setScrolled(true);
       } else {
         setScrolled(false);

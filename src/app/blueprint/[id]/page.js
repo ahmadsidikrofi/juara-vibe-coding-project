@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, Trash2, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, Droplets, Leaf, ShieldAlert, CheckCircle2, Trash2, Sparkles, Wand2 } from "lucide-react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { deleteProject } from "@/lib/projectService";
@@ -12,6 +12,7 @@ import { TailorCard } from "@/components/tailor-card";
 import { DiyStepper } from "@/components/diy-stepper";
 import ButtonShineHoverDemo from "@/components/shadcn-space/radix/button/button-03";
 import Dialog02 from "@/components/shadcn-space/radix/dialog/dialog-02";
+import BlueprintCarousel from "@/components/shadcn-space/radix/carousel/carousel-01";
 
 export default function BlueprintDetailPage({ params }) {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function BlueprintDetailPage({ params }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleDelete = async () => {
     setIsDeleting(true);
@@ -49,6 +51,7 @@ export default function BlueprintDetailPage({ params }) {
           setData({
             image: docData.imageUrl,
             analysis: docData.diagnosis,
+            remake: docData.remake || null,
             uniqueId: docData.projectId || `#PRMK-${projectId.substring(0, 5).toUpperCase()}`
           });
         } else {
@@ -64,6 +67,10 @@ export default function BlueprintDetailPage({ params }) {
 
     fetchProjectData();
   }, [projectId]);
+
+  const handleSlideChange = useCallback((index) => {
+    setActiveIndex(index);
+  }, []);
 
   if (loading) {
     return (
@@ -97,7 +104,25 @@ export default function BlueprintDetailPage({ params }) {
     );
   }
 
-  const { image, analysis, uniqueId } = data;
+  const { image, analysis, remake, uniqueId } = data;
+
+  // Build slides array — always show original, conditionally add remake
+  const slides = [
+    {
+      id: "original",
+      type: "repair",
+      url: image,
+      title: "Panduan Perbaikan"
+    },
+    ...(remake?.imageUrl ? [{
+      id: "remake",
+      type: "remake",
+      url: remake.imageUrl,
+      title: remake.title || "Panduan Remake Studio"
+    }] : [])
+  ];
+
+  const activeSlide = slides[activeIndex];
 
   return (
     <div className="min-h-screen bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24">
@@ -119,22 +144,13 @@ export default function BlueprintDetailPage({ params }) {
               Project Blueprint: <span className="text-clay-sage">{analysis.jenisPakaian || "Pakaian"}</span>
             </h1>
           </div>
-
           <div className="flex items-center flex-wrap gap-x-8 gap-y-2 mt-2">
             <p className="text-clay-ink/60 text-lg font-medium">Unique ID: {uniqueId}</p>
           </div>
         </div>
 
         {/* Header Actions */}
-        <div className="w-full md:w-auto flex flex-col md:flex-row justify-end items-center md:ml-auto gap-4">
-          <button
-            onClick={() => router.push(`/studio/${projectId}`)}
-            className="w-full md:w-auto px-6 py-4 bg-clay-sage text-white font-bold rounded-2xl shadow-[inset_0px_-4px_8px_rgba(0,0,0,0.1)] hover:shadow-[inset_0px_-2px_4px_rgba(0,0,0,0.1)] hover:translate-y-0.5 transition-all flex items-center justify-center gap-2"
-          >
-            <Sparkles className="w-5 h-5" />
-            Buka Remake Studio
-          </button>
-
+        <div className="w-full md:w-auto flex flex-col justify-end items-end md:ml-auto gap-4 mt-8">
           <Dialog02
             title="Hapus Pakaian Ini?"
             description="Apakah Anda yakin ingin menghapus pakaian ini dari My Wardrobe? Tindakan ini tidak dapat dibatalkan."
@@ -155,48 +171,58 @@ export default function BlueprintDetailPage({ params }) {
               </ButtonShineHoverDemo>
             }
           />
+          <ButtonShineHoverDemo
+            onClick={() => router.push(`/studio/${projectId}`)}
+            icon={<Sparkles className="w-8 h-8" />}
+            text="Ubah gaya di Remake Studio"
+            className="flex items-center gap-2 p-6 bg-clay-sage text-white font-bold rounded-2xl shadow-sm border border-clay-sage/10 hover:bg-clay-sage/90 transition-colors disabled:opacity-70 cursor-pointer"
+          >
+          </ButtonShineHoverDemo>
         </div>
       </motion.div>
 
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
 
-        {/* LEFT: Visual Evidence */}
+        {/* LEFT: Gallery Carousel */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
           className="lg:col-span-5 flex flex-col gap-6"
         >
-          <div className="glass rounded-3xl p-4 shadow-xl border border-white/50 relative overflow-hidden group">
-            <div className="relative rounded-2xl overflow-hidden aspect-[3/4] bg-black/5">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={image}
-                alt="Pakaian"
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
+          {/* Before/After Carousel */}
+          <BlueprintCarousel
+            slides={slides}
+            onSlideChange={handleSlideChange}
+            kerusakan={activeSlide?.type === "repair" ? (analysis.kerusakan || []) : []}
+          />
 
-              {/* Pulse overlay for damages */}
-              {analysis.kerusakan?.map((k, i) => {
-                const x = k.koordinat?.x || 50;
-                const y = k.koordinat?.y || 50;
-                return (
-                  <div
-                    key={i}
-                    className="absolute"
-                    style={{ left: `${x}%`, top: `${y}%`, transform: 'translate(-50%, -50%)' }}
-                  >
-                    <div className="relative">
-                      <div className="w-8 h-8 bg-clay-pink/50 rounded-full animate-ping absolute inset-0"></div>
-                      <div className="w-8 h-8 bg-clay-pink/80 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white backdrop-blur-sm cursor-help hover:scale-110 transition-transform" title={k.deskripsi}>
-                        <ShieldAlert className="w-4 h-4" />
-                      </div>
+          {/* Damage Pin Overlay (only for original slide) */}
+          {activeSlide?.type === "repair" && analysis.kerusakan?.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="bg-white/70 backdrop-blur-sm rounded-[28px] p-5 border border-white/60 shadow-[inset_0px_2px_4px_rgba(255,255,255,0.6),0px_8px_24px_rgba(0,0,0,0.04)]"
+            >
+              <h3 className="text-sm font-black uppercase tracking-widest text-clay-ink/50 mb-3 flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-clay-pink" />
+                Titik Kerusakan
+              </h3>
+              <div className="space-y-2">
+                {analysis.kerusakan.map((k, i) => (
+                  <div key={i} className="flex items-start gap-3 p-3 bg-clay-pink/5 rounded-2xl border border-clay-pink/10">
+                    <div className="w-6 h-6 rounded-full bg-clay-pink/20 text-clay-pink flex items-center justify-center shrink-0 font-bold text-xs">
+                      {i + 1}
+                    </div>
+                    <div>
+                      <p className="font-bold text-sm">{k.lokasi}</p>
+                      <p className="text-clay-ink/60 text-xs mt-0.5">{k.deskripsi}</p>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* Eco Impact Box */}
           {analysis.ecoImpact && (
@@ -227,7 +253,7 @@ export default function BlueprintDetailPage({ params }) {
           <TailorCard penjahit={analysis.penjahit} />
         </motion.div>
 
-        {/* RIGHT: Technical Specs & Action Hub */}
+        {/* RIGHT: Reactive Guide Panel */}
         <motion.div
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
@@ -262,23 +288,6 @@ export default function BlueprintDetailPage({ params }) {
               </div>
             </div>
 
-            <div className="mb-6">
-              <p className="text-sm font-medium text-clay-ink/50 uppercase tracking-wider mb-3">Daftar Kerusakan</p>
-              <div className="space-y-3">
-                {analysis.kerusakan?.map((k, i) => (
-                  <div key={i} className="flex gap-4 items-start p-4 bg-clay-ink/5 rounded-2xl">
-                    <div className="w-8 h-8 rounded-full bg-clay-pink/20 text-clay-pink flex items-center justify-center shrink-0 mt-0.5 font-bold">
-                      {i + 1}
-                    </div>
-                    <div>
-                      <h4 className="font-bold">{k.lokasi}</h4>
-                      <p className="text-clay-ink/70 leading-relaxed text-sm mt-1">{k.deskripsi}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
             <div className="p-5 bg-clay-sage/10 rounded-2xl border border-clay-sage/20 flex gap-4">
               <CheckCircle2 className="w-6 h-6 text-clay-sage shrink-0" />
               <div>
@@ -288,9 +297,58 @@ export default function BlueprintDetailPage({ params }) {
             </div>
           </div>
 
-          {/* Panduan DIY (Roadmap Style) */}
-          <DiyStepper diy={analysis.diy} />
+          {/* Reactive Guide Panel — synced with activeIndex */}
+          <AnimatePresence mode="wait">
+            {activeSlide?.type === "repair" ? (
+              <motion.div
+                key="repair-guide"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.25 }}
+              >
+                <DiyStepper diy={analysis.diy} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="remake-guide"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.25 }}
+                className="bg-white rounded-3xl p-8 shadow-sm border border-clay-lavender/20 shadow-[0px_8px_32px_rgba(0,0,0,0.04)]"
+              >
+                <div className="flex items-center gap-3 mb-6 pb-4 border-b border-clay-ink/10">
+                  <div className="w-10 h-10 rounded-2xl bg-clay-lavender/20 flex items-center justify-center">
+                    <Wand2 className="w-5 h-5 text-clay-ink" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-widest text-clay-ink/40">Remake Studio</p>
+                    <h2 className="text-2xl font-bold">{remake?.title || "Panduan Remake"}</h2>
+                  </div>
+                </div>
 
+                <ul className="space-y-4">
+                  {remake?.recipe?.map((step, idx) => {
+                    const parts = step.split(/(\*\*.*?\*\*)/g);
+                    const rendered = parts.map((part, i) =>
+                      part.startsWith("**") && part.endsWith("**")
+                        ? <strong key={i} className="font-extrabold text-clay-ink">{part.slice(2, -2)}</strong>
+                        : <span key={i}>{part}</span>
+                    );
+                    return (
+                      <li key={`remake-step-${idx}`} className="flex gap-4 items-start bg-clay-lavender/10 p-4 rounded-2xl border border-clay-lavender/10">
+                        <div className="w-8 h-8 rounded-full bg-clay-lavender/30 text-clay-ink flex items-center justify-center shrink-0 mt-0.5 font-bold text-sm shadow-inner">
+                          {idx + 1}
+                        </div>
+                        <p className="text-clay-ink/80 leading-relaxed font-medium pt-1">{rendered}</p>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       </div>
     </div>

@@ -112,7 +112,7 @@ export function SmartCanvas() {
           toast.error(data.alasan || "Gambar tidak dikenali sebagai pakaian.", {
             duration: 5000,
             position: 'top-center'
-          });
+          })
           setIsAnalyzing(false);
           setAnalyzingText("Menganalisis...");
           return;
@@ -146,7 +146,10 @@ export function SmartCanvas() {
 
     } catch (error) {
       console.error("Error analysis:", error);
-      alert(error.message);
+      toast.error("Maaf, ternyata permintaanmu gagal diproses. Coba lagi yukk", {
+        position: "top-center",
+        duration: 5000,
+      })
     } finally {
       setIsAnalyzing(false);
     }

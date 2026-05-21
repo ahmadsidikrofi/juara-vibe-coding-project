@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { motion } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
@@ -12,6 +12,7 @@ import ReferenceCard from "@/components/remake-studio/ReferenceCard";
 import PromptSandbox from "@/components/remake-studio/PromptSandbox";
 import HistoryStrip from "@/components/remake-studio/HistoryStrip";
 import ResultsPanel from "@/components/remake-studio/ResultsPanel";
+import toast from "react-hot-toast";
 
 export default function RemakeStudioPage({ params }) {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function RemakeStudioPage({ params }) {
 
   const [prompt, setPrompt] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState([]);
   const [activeVersionIndex, setActiveVersionIndex] = useState(0);
   const [activeTab, setActiveTab] = useState(0); // 0: Preview Visual, 1: Langkah Pembuatan
@@ -72,15 +74,18 @@ export default function RemakeStudioPage({ params }) {
 
       if (data.error) {
         // AI specifically rejected the prompt gracefully
-        alert(`Penolakan Sistem: ${data.error}`);
-        return;
+        toast.error(`Penolakan Sistem: ${data.error}`, {
+          position: "top-center",
+          duration: 5000,
+        })
+        return
       }
 
       const newVersion = history.length + 1;
       const newHistoryItem = {
         version: newVersion,
         prompt: prompt,
-        imageUrl: projectData?.imageUrl || "", // Placeholder using original image
+        imageUrl: data.generatedImageUrl || projectData?.imageUrl || "",
         title: data.title || prompt,
         recipe: data.recipe || ["Gagal memuat resep"]
       };
@@ -91,9 +96,37 @@ export default function RemakeStudioPage({ params }) {
       setPrompt("");
     } catch (error) {
       console.error("Generate Error:", error);
-      alert("Maaf, gagal memproses permintaanmu. Silakan coba lagi nanti.");
+      toast.error("Maaf, ternyata permintaanmu gagal diproses. Coba lagi yukk", {
+        position: "top-center",
+        duration: 5000,
+      })
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  const handleSaveRemake = async () => {
+    if (history.length === 0) return;
+    const activeVersion = history[activeVersionIndex];
+    setIsSaving(true);
+    try {
+      const docRef = doc(db, "projects", projectId);
+      await updateDoc(docRef, {
+        remake: {
+          imageUrl: activeVersion.imageUrl,
+          recipe: activeVersion.recipe,
+          title: activeVersion.title || activeVersion.prompt,
+        }
+      });
+      toast.success("Desain berhasil disimpan ke Blueprint 🎨", {
+        duration: 5000,
+      })
+      router.push(`/blueprint/${projectId}`);
+    } catch (error) {
+      console.error("Save Remake Error:", error);
+      toast.error("Gagal menyimpan desain. Silakan coba lagi.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -176,6 +209,8 @@ export default function RemakeStudioPage({ params }) {
               activeVersionIndex={activeVersionIndex}
               activeTab={activeTab}
               setActiveTab={setActiveTab}
+              onSave={handleSaveRemake}
+              isSaving={isSaving}
             />
 
           </div>

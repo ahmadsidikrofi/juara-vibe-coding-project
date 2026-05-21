@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -8,8 +8,22 @@ import { db } from "@/lib/firebase";
 import Masonry from "@/components/masonry";
 import { ArrowLeft, Sparkles, LayoutGrid, Rotate3D } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import InfiniteMenu from "@/components/infinite-menu";
+import dynamic from "next/dynamic";
 import { cn } from "@/lib/utils";
+
+// Lazy-load InfiniteMenu: bundle ini ~300KB WebGL, jangan ikut bundle utama
+const InfiniteMenu = dynamic(() => import("@/components/infinite-menu"), {
+    ssr: false,
+    loading: () => (
+        <div className="w-full h-full flex items-center justify-center gap-3">
+            <div className="w-10 h-10 border-4 border-clay-sage border-t-transparent rounded-full animate-spin" />
+            <span className="text-clay-ink/50 font-medium text-sm">Memuat 3D Gallery...</span>
+        </div>
+    )
+});
+
+// Preload InfiniteMenu bundle di background — dipanggil saat hover tombol
+const preloadInfiniteMenu = () => import("@/components/infinite-menu");
 
 const MyWardrobePage = () => {
     const { user } = useAuth();
@@ -18,32 +32,35 @@ const MyWardrobePage = () => {
     const [loading, setLoading] = useState(true);
     const [viewMode, setViewMode] = useState("masonry"); // "masonry" | "infinite"
 
+    // useTransition: tandai view-switch sebagai update non-urgent
+    // Ini mencegah UI freeze saat React memproses render berat InfiniteMenu
+    const [isViewSwitching, startViewTransition] = useTransition();
+
     useEffect(() => {
-        if (!user) {
-            return;
-        }
+        if (!user) return;
 
         const fetchProjects = async () => {
             try {
                 const q = query(
                     collection(db, "projects"),
                     where("userId", "==", user.uid)
-                )
+                );
 
-                const querySnapshot = await getDocs(q)
+                const querySnapshot = await getDocs(q);
                 const items = [];
 
                 querySnapshot.forEach((doc) => {
                     const data = doc.data();
+                    // Stable height dari karakter doc.id — tidak berubah antar render
+                    const stableHeight = 300 + (doc.id.charCodeAt(0) + doc.id.charCodeAt(1)) % 301;
                     items.push({
-                        // Common
                         id: doc.id,
                         createdAt: data.createdAt?.toMillis() || 0,
-                        // Masonry Specific
+                        // Masonry
                         img: data.imageUrl,
                         url: `/blueprint/${doc.id}`,
-                        height: Math.floor(Math.random() * (600 - 300 + 1)) + 300,
-                        // Infinite Menu Specific
+                        height: stableHeight,
+                        // InfiniteMenu
                         image: data.imageUrl,
                         link: `/blueprint/${doc.id}`,
                         title: data.diagnosis?.jenisPakaian || 'Pakaian',
@@ -51,9 +68,7 @@ const MyWardrobePage = () => {
                     });
                 });
 
-                // Mengurutkan dari yang terbaru
                 items.sort((a, b) => b.createdAt - a.createdAt);
-
                 setWardrobeItems(items);
             } catch (error) {
                 console.error("Error fetching wardrobe items:", error);
@@ -65,6 +80,13 @@ const MyWardrobePage = () => {
         fetchProjects();
     }, [user]);
 
+    // Wrap setViewMode dengan startTransition agar tidak blocking
+    const handleViewChange = useCallback((mode) => {
+        startViewTransition(() => {
+            setViewMode(mode);
+        });
+    }, [startViewTransition]);
+
     // Loading auth state
     if (!user && loading) {
         return (
@@ -75,7 +97,7 @@ const MyWardrobePage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24">
+        <div className="min-h-screen bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24 mb-32">
             {/* Header */}
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
@@ -99,7 +121,7 @@ const MyWardrobePage = () => {
                 {!loading && wardrobeItems.length > 0 && (
                     <div className="ml-auto flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
                         <button
-                            onClick={() => setViewMode("masonry")}
+                            onClick={() => handleViewChange("masonry")}
                             className={cn(
                                 "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
                                 viewMode === "masonry" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
@@ -108,10 +130,14 @@ const MyWardrobePage = () => {
                             Grid
                         </button>
                         <button
-                            onClick={() => setViewMode("infinite")}
+                            onClick={() => handleViewChange("infinite")}
+                            // bundle-preload: preload InfiniteMenu JS saat hover, sebelum diklik
+                            onMouseEnter={preloadInfiniteMenu}
+                            onFocus={preloadInfiniteMenu}
                             className={cn(
                                 "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
-                                viewMode === "infinite" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
+                                viewMode === "infinite" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50",
+                                isViewSwitching && viewMode !== "infinite" && "opacity-70"
                             )}>
                             <Rotate3D className="w-4 h-4" />
                             3D Gallery
@@ -180,7 +206,7 @@ const MyWardrobePage = () => {
                                 transition={{ duration: 0.5, ease: "easeOut" }}
                                 className="w-full h-[600px] md:h-[700px] rounded-3xl overflow-hidden shadow-2xl border border-white/50 relative bg-black/5"
                             >
-                                <InfiniteMenu 
+                                <InfiniteMenu
                                     items={wardrobeItems}
                                     scale={1}
                                 />

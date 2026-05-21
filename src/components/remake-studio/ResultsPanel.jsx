@@ -1,12 +1,14 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Wand2 } from "lucide-react";
+import { Sparkles, Wand2, BookmarkCheck } from "lucide-react";
 
 export default function ResultsPanel({
   isGenerating,
   history,
   activeVersionIndex,
   activeTab,
-  setActiveTab
+  setActiveTab,
+  onSave,
+  isSaving
 }) {
   // Helper to parse **bold** text from AI
   const renderStepText = (text) => {
@@ -108,6 +110,28 @@ export default function ResultsPanel({
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {/* Save Button */}
+            <motion.button
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              onClick={onSave}
+              disabled={isSaving}
+              className="mt-5 w-full py-4 bg-clay-sage text-white font-bold rounded-2xl shadow-[inset_0px_-4px_8px_rgba(0,0,0,0.1)] hover:shadow-[inset_0px_-2px_4px_rgba(0,0,0,0.1)] hover:translate-y-0.5 transition-all flex items-center justify-center gap-2 disabled:opacity-60 disabled:hover:translate-y-0 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isSaving ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Menyimpan...
+                </>
+              ) : (
+                <>
+                  <BookmarkCheck className="w-5 h-5" />
+                  Simpan Desain ke Blueprint
+                </>
+              )}
+            </motion.button>
           </motion.div>
         ) : (
           <motion.div

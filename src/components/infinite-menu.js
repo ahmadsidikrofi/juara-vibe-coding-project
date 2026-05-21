@@ -597,11 +597,12 @@ class InfiniteGridMenu {
     scaleFactor = 1.0;
     movementActive = false;
 
-    constructor(canvas, items, onActiveItemChange, onMovementChange, onInit = null, scale = 1.0) {
+    constructor(canvas, items, onActiveItemChange, onMovementChange, onInit = null, scale = 1.0, onReady = null) {
         this.canvas = canvas;
         this.items = items || [];
         this.onActiveItemChange = onActiveItemChange || (() => { });
         this.onMovementChange = onMovementChange || (() => { });
+        this.onReady = onReady || (() => { });
         this.scaleFactor = scale;
         this.camera.position[2] = 3 * scale;
         this.#init(onInit);
@@ -726,6 +727,8 @@ class InfiniteGridMenu {
             gl.bindTexture(gl.TEXTURE_2D, this.tex);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, canvas);
             gl.generateMipmap(gl.TEXTURE_2D);
+
+            this.onReady();
         });
     }
 
@@ -915,6 +918,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
     const canvasRef = useRef(null);
     const [activeItem, setActiveItem] = useState(null);
     const [isMoving, setIsMoving] = useState(false);
+    const [isReady, setIsReady] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -932,7 +936,8 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
                 handleActiveItem,
                 setIsMoving,
                 sk => sk.run(),
-                scale
+                scale,
+                () => setIsReady(true)
             );
         }
 
@@ -961,10 +966,19 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
 
     return (
         <div className="relative w-full h-full">
+            {/* Elegant Skeleton overlay while WebGL compiles and textures load */}
+            {!isReady && (
+                <div className="absolute inset-0 z-20 flex items-center justify-center bg-clay-sage/5">
+                    <div className="w-16 h-16 bg-white rounded-full shadow-md flex items-center justify-center animate-pulse">
+                        <div className="w-8 h-8 border-4 border-clay-sage border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            )}
+
             <canvas
                 id="infinite-grid-menu-canvas"
                 ref={canvasRef}
-                className="cursor-grab w-full h-full overflow-hidden relative outline-none active:cursor-grabbing"
+                className={`cursor-grab w-full h-full overflow-hidden relative outline-none active:cursor-grabbing transition-opacity duration-700 ${isReady ? 'opacity-100' : 'opacity-0'}`}
             />
 
             {activeItem && (
