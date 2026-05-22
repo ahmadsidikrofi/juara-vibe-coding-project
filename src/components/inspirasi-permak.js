@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import ButtonWithIconDemo from "./shadcn-space/radix/button/button-01";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useAuth } from "@/context/auth-context";
 
 const baseInspirations = [
   {
@@ -111,6 +112,8 @@ const ScrollingColumn = ({ items, duration, reverse = false }) => {
 };
 
 export function InspirasiPermak() {
+  const { user } = useAuth()
+
   return (
     <section className="w-full max-w-7xl mx-auto mt-24 mb-32 px-4 md:px-8">
       <div className="text-center mb-16 animate-slide-up">
@@ -141,7 +144,7 @@ export function InspirasiPermak() {
       </div>
 
       <div className="mt-16 text-center animate-slide-up relative z-20">
-        <Link href="/my-wardrobe">
+        <Link href={user ? "/my-wardrobe" : "/login"}>
           <ButtonWithIconDemo className="bg-clay-ink text-white shadow-xl hover:shadow-2xl text-lg h-14" text="Lihat Lebih Banyak di My Wardrobe" />
         </Link>
       </div>

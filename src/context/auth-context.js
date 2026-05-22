@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { auth, db } from "@/lib/firebase";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext({
@@ -10,24 +11,46 @@ const AuthContext = createContext({
   loading: true,
   loginWithGoogle: async () => { },
   logout: async () => { },
+  wardrobeItems: [],
 });
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [wardrobeItems, setWardrobeItems] = useState([]);
 
   useEffect(() => {
+    let unsubscribeProjects;
+
     // Listen for auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUser(user);
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        
+        // Subscribe to user's wardrobe items
+        const q = query(
+          collection(db, "projects"),
+          where("userId", "==", currentUser.uid)
+        );
+        unsubscribeProjects = onSnapshot(q, (snapshot) => {
+          const items = [];
+          snapshot.forEach((doc) => {
+            items.push({ id: doc.id, ...doc.data() });
+          });
+          setWardrobeItems(items);
+        });
       } else {
         setUser(null);
+        setWardrobeItems([]);
+        if (unsubscribeProjects) unsubscribeProjects();
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProjects) unsubscribeProjects();
+    };
   }, []);
 
   const loginWithGoogle = async () => {
@@ -71,7 +94,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, wardrobeItems }}>
       {loading ? (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-clay-cream selection:bg-transparent">
           <div className="relative flex items-center justify-center">

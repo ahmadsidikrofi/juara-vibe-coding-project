@@ -99,7 +99,7 @@ export default function LoginPage() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="-mt-20 h-screen lg:grid lg:grid-cols-2 bg-clay-cream text-clay-ink selection:bg-clay-sage/30 overflow-hidden"
+      className="-mt-20 h-screen lg:grid lg:grid-cols-[60%_40%] bg-clay-cream text-clay-ink selection:bg-clay-sage/30 overflow-hidden"
     >
       {/* LEFT SIDE: Visual Storytelling (Desktop Only) */}
       <div className="hidden lg:block relative overflow-hidden h-full bg-clay-ink z-10">
@@ -110,9 +110,8 @@ export default function LoginPage() {
             return (
               <div
                 key={index}
-                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-                  isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-                }`}
+                className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                  }`}
               >
                 {/* Before Image */}
                 <img
@@ -120,12 +119,11 @@ export default function LoginPage() {
                   alt={`Sebelum - ${slide.title}`}
                   className="absolute inset-0 w-full h-full object-cover filter brightness-[0.85] contrast-[1.05]"
                 />
-                
+
                 {/* After Image (Fades in over the Before image) */}
                 <div
-                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                    showAfter ? "opacity-100" : "opacity-0"
-                  }`}
+                  className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${showAfter ? "opacity-100" : "opacity-0"
+                    }`}
                 >
                   <img
                     src={slide.after}
@@ -136,24 +134,22 @@ export default function LoginPage() {
 
                 {/* Top Floating Badge for Process Indicators */}
                 <div className="absolute top-8 left-8 z-30 flex items-center gap-2">
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${
-                    !showAfter
-                      ? "bg-clay-pink text-white scale-105"
-                      : "bg-white/30 text-white/90 backdrop-blur-md"
-                  }`}>
+                  <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${!showAfter
+                    ? "bg-clay-pink text-white scale-105"
+                    : "bg-white/30 text-white/90 backdrop-blur-md"
+                    }`}>
                     Sebelum
                   </div>
-                  <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${
-                    showAfter
-                      ? "bg-clay-sage text-white scale-105"
-                      : "bg-white/30 text-white/90 backdrop-blur-md"
-                  }`}>
+                  <div className={`px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest transition-all duration-300 shadow-sm ${showAfter
+                    ? "bg-clay-sage text-white scale-105"
+                    : "bg-white/30 text-white/90 backdrop-blur-md"
+                    }`}>
                     Hasil Remake
                   </div>
                 </div>
 
                 {/* Project Description Box */}
-                <div className="absolute top-8 right-8 z-30 max-w-[280px] bg-black/35 glass rounded-[20px] p-4 text-white shadow-xl">
+                <div className="absolute top-8 right-8 z-30 max-w-70 bg-black/35 glass rounded-[20px] p-4 text-white shadow-xl">
                   <div className="flex items-center gap-2 mb-1">
                     <Sparkles className="w-4 h-4 text-clay-peach animate-pulse" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-clay-peach">
@@ -173,7 +169,7 @@ export default function LoginPage() {
         </div>
 
         {/* Dark Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-clay-ink via-clay-ink/40 to-transparent z-20 pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-clay-ink via-clay-ink/40 to-transparent z-20 pointer-events-none" />
 
         {/* Storyteller Bottom Content */}
         <div className="absolute bottom-12 left-12 right-12 z-30 flex flex-col gap-4">
@@ -192,9 +188,8 @@ export default function LoginPage() {
             {slides.map((_, i) => (
               <div
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  i === currentSlideIdx ? "w-8 bg-clay-sage" : "w-2 bg-white/40"
-                }`}
+                className={`h-1.5 rounded-full transition-all duration-500 ${i === currentSlideIdx ? "w-8 bg-clay-sage" : "w-2 bg-white/40"
+                  }`}
               />
             ))}
           </div>
@@ -203,11 +198,11 @@ export default function LoginPage() {
 
       {/* RIGHT SIDE: Interactive & Warm Auth Form */}
       <div className="flex flex-col justify-center items-center p-6 sm:p-12 relative overflow-hidden bg-clay-cream h-full">
-        
+
         {/* Glow Blobs in Background */}
-        <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-clay-sage/10 rounded-full blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-clay-pink/5 rounded-full blur-[120px] pointer-events-none" />
-        <div className="absolute top-10 right-10 w-[200px] h-[200px] bg-clay-lavender/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-75 h-75 bg-clay-sage/10 rounded-full blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-87.5 h-87.5 bg-clay-pink/5 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute top-10 right-10 w-50 h-50 bg-clay-lavender/10 rounded-full blur-[80px] pointer-events-none" />
 
         {/* Auth Card */}
         <motion.div

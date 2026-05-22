@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/context/auth-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -14,14 +14,100 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch } from "lucide-react";
+import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch, HomeIcon, Plus, Sparkles, Leaf } from "lucide-react";
 import ButtonDemo from "./shadcn-space/radix/button/button-16";
+import { SmartCanvas } from "./smart-canvas";
+import { motion, AnimatePresence } from "framer-motion";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+
+const getBreadcrumbs = (pathname) => {
+  if (pathname === "/") {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <HomeIcon className="w-4 h-4 text-clay-ink/70" />
+        <span className="text-clay-ink font-bold">Halaman</span>
+      </div>
+    );
+  }
+
+  if (pathname === "/my-wardrobe") {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <LayoutGrid className="w-4 h-4 text-clay-ink/70" />
+        <Link href="/">
+          <span className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Halaman</span>
+        </Link>
+        <span className="text-clay-ink/40">/</span>
+        <span className="text-clay-ink font-bold">Lemariku</span>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith("/blueprint")) {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <Link href="/" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Halaman</Link>
+        <span className="text-clay-ink/40">/</span>
+        <Link href="/my-wardrobe" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Lemariku</Link>
+        <span className="text-clay-ink/40">/</span>
+        <span className="text-clay-ink font-bold">Blueprint Pakaian</span>
+      </div>
+    );
+  }
+
+  if (pathname.startsWith("/studio")) {
+    return (
+      <div className="flex items-center gap-2 text-sm">
+        <Link href="/" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Halaman</Link>
+        <span className="text-clay-ink/40">/</span>
+        <Link href="/my-wardrobe" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Lemariku</Link>
+        <span className="text-clay-ink/40">/</span>
+        <Link href="/blueprint"><span className="text-clay-ink/70">Blueprint Pakaian</span></Link>
+        <span className="text-clay-ink/40">/</span>
+        <span className="text-clay-ink font-bold">Remake Studio ✨</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-clay-ink font-bold">Permak.in</span>
+    </div>
+  );
+};
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, loginWithGoogle, logout } = useAuth();
+  const { user, loginWithGoogle, logout, wardrobeItems } = useAuth();
+
+  const [totalWaterSaved, setTotalWaterSaved] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [isCanvasOpen, setIsCanvasOpen] = useState(false);
+
+  useEffect(() => {
+    if (!wardrobeItems || wardrobeItems.length === 0) {
+      setTotalWaterSaved(0);
+      return;
+    }
+    const total = wardrobeItems.reduce((acc, item) => {
+      if (item.ecoImpact && item.ecoImpact.air) {
+        // Remove non-numeric characters and parse
+        const waterStr = item.ecoImpact.air.replace(/[^0-9]/g, '');
+        return acc + (parseInt(waterStr) || 0);
+      }
+      return acc;
+    }, 0);
+
+    if (total !== totalWaterSaved) {
+      setIsAnimating(true);
+      setTotalWaterSaved(total);
+      const timer = setTimeout(() => setIsAnimating(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [wardrobeItems, totalWaterSaved]);
 
   useEffect(() => {
     if (pathname === "/login") return;
@@ -50,67 +136,53 @@ export function Navbar() {
           : "max-w-6xl py-4 px-8 bg-white backdrop-blur-sm shadow-md border border-white/30"
           }`}
       >
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-1 z-50">
-          <span className="text-2xl font-extrabold tracking-tight text-clay-ink font-sans">
-            Permak<span className="text-clay-sage">.in</span>
-          </span>
-        </Link>
+        {/* Left: Logo */}
+        <div className="flex-1 flex justify-start">
+          <Link href="/" className="flex items-center gap-1 z-50">
+            <span className="text-2xl font-extrabold tracking-tight text-clay-ink font-sans">
+              Permak<span className="text-clay-sage">.in</span>
+            </span>
+          </Link>
+        </div>
 
-        {/* Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-1 font-bold text-clay-ink/80 text-md tracking-wide">
-          <Link href="/" className="px-5 py-2.5 rounded-full hover:bg-clay-ink/5 hover:text-clay-sage transition-all">Home</Link>
+        {/* Center: Dynamic Breadcrumbs Capsule */}
+        <div className="hidden md:flex flex-none items-center gap-3 px-4 py-1.5 bg-white/60 backdrop-blur-md border border-white/50 rounded-full shadow-sm">
+          {getBreadcrumbs(pathname)}
+          <div className="w-px h-5 bg-clay-ink/10" />
+          <Popover open={isCanvasOpen} onOpenChange={setIsCanvasOpen}>
+            <PopoverTrigger asChild>
+              <button
+                className="flex items-center gap-1.5 bg-clay-ink text-white rounded-full px-4 py-1.5 text-sm font-bold hover:scale-95 transition-transform cursor-pointer outline-none"
+              >
+                <Plus className="w-4 h-4" />
+                Scan Baju
+              </button>
+            </PopoverTrigger>
+            <PopoverContent
+              align="center"
+              sideOffset={15}
+              className="w-[90vw] max-w-xl px-8 backdrop-blur-xl border-clay-ink/10 shadow-2xl rounded-3xl overflow-hidden data-[state=open]:slide-in-from-top-2 data-[state=closed]:slide-out-to-top-2 data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 duration-300"
+            >
+              {/* Tutup tombol asli di SmartCanvas kalau mau, tapi kita biarkan apa adanya */}
+              <div className="overflow-y-auto">
+                <SmartCanvas />
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
 
-          {/* Layanan Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1 px-5 py-2.5 rounded-full hover:bg-clay-ink/5 hover:text-clay-sage transition-all outline-none cursor-pointer">
-              Layanan
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="center" className="w-64 rounded-3xl p-2 bg-white/90 backdrop-blur-xl border-clay-ink/5 shadow-xl mt-4">
-              <DropdownMenuGroup>
-                <DropdownMenuItem className="p-3 rounded-2xl cursor-pointer hover:bg-clay-lavender/20 gap-3 group transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-clay-lavender/30 flex items-center justify-center text-clay-ink group-hover:scale-110 transition-transform">
-                    <ScanSearch className="w-5 h-5" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-clay-ink">Diagnosis Baju</span>
-                    <span className="text-xs text-clay-ink/60">Scan kerusakan via AI</span>
-                  </div>
-                </DropdownMenuItem>
+        {/* Right: Actions & Mobile Toggle */}
+        <div className="flex-1 flex justify-end items-center z-50 gap-3">
+          <div className="hidden md:flex items-center gap-5">
+            {/* Eco-Badge */}
+            <div className={`hidden lg:flex items-end gap-2 bg-clay-sage/10 text-clay-sage px-3 py-1.5 rounded-full text-xs font-bold border border-clay-sage/20 shadow-inner transition-transform duration-300 ${isAnimating ? "scale-110 ring-2 ring-clay-sage/50" : ""}`}>
+              <Leaf className={`w-3.5 h-3.5 ${isAnimating ? "animate-bounce" : ""}`} />
+              <span>{totalWaterSaved > 0 ? `${totalWaterSaved.toLocaleString("id-ID")} L Air` : "🌿 0 L Air"}</span>
+            </div>
 
-                <DropdownMenuItem className="p-3 rounded-2xl cursor-pointer hover:bg-clay-sage/20 gap-3 group transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-clay-sage/30 flex items-center justify-center text-clay-ink group-hover:scale-110 transition-transform">
-                    <Scissors className="w-5 h-5" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-clay-ink">Solusi Perbaikan</span>
-                    <span className="text-xs text-clay-ink/60">Panduan DIY & Penjahit</span>
-                  </div>
-                </DropdownMenuItem>
-
-                <DropdownMenuItem className="p-3 rounded-2xl cursor-pointer hover:bg-clay-pink/20 gap-3 group transition-colors">
-                  <div className="w-10 h-10 rounded-full bg-clay-pink/30 flex items-center justify-center text-clay-ink group-hover:scale-110 transition-transform">
-                    <Wand2 className="w-5 h-5" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-clay-ink">Remake Studio</span>
-                    <span className="text-xs text-clay-ink/60">Visualisasi modifikasi</span>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Link href="#inspirasi" className="px-5 py-2.5 rounded-full hover:bg-clay-ink/5 hover:text-clay-sage transition-all">Inspirasi</Link>
-          <Link href="#tentang" className="px-5 py-2.5 rounded-full hover:bg-clay-ink/5 hover:text-clay-sage transition-all">Tentang Kami</Link>
-        </nav>
-
-        {/* Actions (Desktop) */}
-        <div className="hidden md:flex items-center z-50">
-          {user ? (
-            <>
+            {user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="outline-none rounded-full cursor-pointer hover:ring-4 hover:ring-clay-sage/20 transition-all">
+                <DropdownMenuTrigger className="outline-none rounded-xl cursor-pointer hover:ring-4 hover:ring-clay-sage/20 transition-all">
                   <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
                     <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
                     <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
@@ -118,44 +190,48 @@ export function Navbar() {
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56 rounded-3xl p-2 bg-white/95 backdrop-blur-xl border-clay-ink/5 shadow-xl mt-4">
-                  <DropdownMenuLabel className="flex flex-col px-3 py-2">
-                    <span className="font-bold text-clay-ink truncate">{user.displayName || "User Permak.in"}</span>
-                    <span className="text-xs text-clay-ink/60 truncate">{user.email}</span>
+                <DropdownMenuContent align="center" className="w-56 rounded-xl p-2 bg-white/95 backdrop-blur-xl border-clay-ink/5 shadow-xl mt-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200">
+                  <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2">
+                    <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
+                      <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
+                      <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
+                        {user?.displayName?.charAt(0) || "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex flex-col overflow-hidden">
+                      <span className="font-bold text-clay-ink text-sm truncate">{user.displayName || "User Permak.in"}</span>
+                      <span className="text-xs text-clay-ink/60 truncate">{user.email}</span>
+                    </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-clay-ink/5" />
                   <DropdownMenuGroup>
-                    <DropdownMenuItem className="p-3 rounded-2xl cursor-pointer hover:bg-clay-ink/5 gap-3 font-medium">
-                      <LayoutGrid className="w-4 h-4 text-clay-ink/70" />
-                      My Wardrobe
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="p-3 rounded-2xl cursor-pointer hover:bg-clay-ink/5 gap-3 font-medium">
-                      <Settings className="w-4 h-4 text-clay-ink/70" />
-                      Settings
+                    <DropdownMenuItem onClick={() => router.push('/my-wardrobe')} className="p-2 text-sm font-medium text-clay-ink cursor-pointer gap-2 hover:bg-clay-ink/5 rounded-xl">
+                      <span className="text-lg">👕</span>
+                      <span>Lemariku</span>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator className="bg-clay-ink/5" />
-                  <DropdownMenuItem onClick={logout} className="p-3 rounded-2xl cursor-pointer hover:bg-red-50 text-red-600 gap-3 font-medium">
-                    <LogOut className="w-4 h-4" />
-                    Logout
+                  <DropdownMenuItem onClick={logout} className="p-2 text-sm font-medium text-red-600 cursor-pointer gap-2 hover:bg-red-50 rounded-xl">
+                    <span className="text-lg">🚪</span>
+                    <span>Keluar</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </>
-          ) : (
-            <>
-              <ButtonDemo onClick={loginWithGoogle} text="Sign in" className="px-6 py-2.5 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage hover:scale-105 active:scale-95 transition-all shadow-md text-lg tracking-wide" />
-            </>
-          )}
-        </div>
+            ) : (
+              <Link href="/login">
+                <ButtonDemo text="Sign in" className="px-6 py-2.5 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage hover:scale-105 active:scale-95 transition-all shadow-md text-lg tracking-wide" />
+              </Link>
+            )}
+          </div>
 
-        {/* Mobile Menu Toggle */}
-        <button
-          className="md:hidden p-2 text-clay-ink hover:bg-clay-ink/5 rounded-full transition-colors z-50"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
+          {/* Mobile Menu Toggle */}
+          <button
+            className="md:hidden p-2 text-clay-ink hover:bg-clay-ink/5 rounded-full transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Bottom Sheet/Dropdown */}
@@ -199,9 +275,11 @@ export function Navbar() {
                 </button>
               </div>
             ) : (
-              <button onClick={loginWithGoogle} className="w-full py-3 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage transition-all shadow-md">
-                Login / Register
-              </button>
+              <Link href="/login">
+                <button className="w-full py-3 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage transition-all shadow-md">
+                  Login / Register
+                </button>
+              </Link>
             )}
           </div>
         </div>
