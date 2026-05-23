@@ -19,7 +19,9 @@ export function CtaSection() {
 
         <div className="relative z-10 flex justify-center w-full">
           {/* Custom Giant CTA Button to ensure it's extremely prominent */}
-          <button className="px-10 py-5 bg-clay-ink text-white font-extrabold text-lg md:text-xl rounded-full shadow-2xl shadow-clay-ink/30 hover:shadow-clay-ink/40 hover:-translate-y-2 active:scale-95 transition-all duration-300 flex items-center justify-center gap-4 group/btn">
+          <button className="px-10 py-5 bg-clay-ink text-white font-extrabold text-lg md:text-xl rounded-full shadow-2xl shadow-clay-ink/30 hover:shadow-clay-ink/40 hover:-translate-y-2 active:scale-95 transition-all duration-300 flex items-center justify-center gap-4 group/btn"
+            onClick={() => document.getElementById('smart-canvas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+          >
             Mulai Perjalanan Hijau Anda
             <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center group-hover/btn:bg-white group-hover/btn:text-clay-ink transition-colors">
               <svg

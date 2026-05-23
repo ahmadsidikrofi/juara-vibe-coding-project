@@ -54,7 +54,7 @@ export function SilkHero() {
           {/* Primary CTA (Dark) */}
           <div onClick={() => document.getElementById('smart-canvas')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="cursor-pointer">
             <ButtonWithIconDemo
-              className="bg-clay-ink pointer-events-none"
+              className="bg-clay-ink pointer-events-auto"
               variant="outline"
               color="neutral"
               size="lg"

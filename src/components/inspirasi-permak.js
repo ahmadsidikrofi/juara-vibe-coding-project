@@ -9,23 +9,23 @@ import { useAuth } from "@/context/auth-context";
 const baseInspirations = [
   {
     id: 1,
-    url: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=600&h=800&q=80",
+    url: "/jeans-1.jpg",
     status: "DIY Repair",
-    tag: "Jeans Robek",
+    tag: "Pembetulan Jeans Robek",
     badgeColor: "bg-clay-sage text-clay-ink hover:bg-clay-sage/80 border-none shadow-sm font-bold",
     heightClass: "h-[400px]",
   },
   {
     id: 2,
-    url: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=600&h=600&q=80",
+    url: "/kaos-kebesaran.jpg",
     status: "Surat Penjahit",
-    tag: "Kemeja Kebesaran",
+    tag: "Kaos Kebesaran",
     badgeColor: "bg-clay-lavender text-clay-ink hover:bg-clay-lavender/80 border-none shadow-sm font-bold",
     heightClass: "h-[300px]",
   },
   {
     id: 3,
-    url: "https://images.unsplash.com/photo-1551028719-0125fd6b9eb4?auto=format&fit=crop&w=600&h=900&q=80",
+    url: "/jaket-denim.jpg",
     status: "AI Remake",
     tag: "Jaket Denim",
     badgeColor: "bg-clay-pink text-clay-ink hover:bg-clay-pink/80 border-none shadow-sm font-bold",
@@ -33,7 +33,7 @@ const baseInspirations = [
   },
   {
     id: 4,
-    url: "https://images.unsplash.com/photo-1528328956976-96a9282b0e63?auto=format&fit=crop&w=600&h=700&q=80",
+    url: "/jeans-2.jpg",
     status: "Surat Penjahit",
     tag: "Vintage Dress",
     badgeColor: "bg-clay-lavender text-clay-ink hover:bg-clay-lavender/80 border-none shadow-sm font-bold",
@@ -41,7 +41,7 @@ const baseInspirations = [
   },
   {
     id: 5,
-    url: "https://images.unsplash.com/photo-1584273143981-41c073dfe8f8?auto=format&fit=crop&w=600&h=800&q=80",
+    url: "/patchwork.jpg",
     status: "AI Remake",
     tag: "Patchwork Denim",
     badgeColor: "bg-clay-pink text-clay-ink hover:bg-clay-pink/80 border-none shadow-sm font-bold",
@@ -49,9 +49,17 @@ const baseInspirations = [
   },
   {
     id: 6,
-    url: "https://images.unsplash.com/photo-1605022600390-071c6ef35140?auto=format&fit=crop&w=600&h=600&q=80",
+    url: "/sweater-repair.jpg",
+    status: "AI Remake",
+    tag: "Sweater Upcycle",
+    badgeColor: "bg-clay-sage text-clay-ink hover:bg-clay-sage/80 border-none shadow-sm font-bold",
+    heightClass: "h-[500px]",
+  },
+  {
+    id: 7,
+    url: "/baju-sobek.jpg",
     status: "DIY Repair",
-    tag: "Tote Bag Upcycle",
+    tag: "Kaos Sobek",
     badgeColor: "bg-clay-sage text-clay-ink hover:bg-clay-sage/80 border-none shadow-sm font-bold",
     heightClass: "h-[300px]",
   }

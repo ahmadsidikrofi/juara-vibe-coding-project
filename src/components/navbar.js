@@ -14,11 +14,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch, HomeIcon, Plus, Sparkles, Leaf } from "lucide-react";
+import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch, HomeIcon, Plus, Sparkles, Leaf, House, Grid2X2, ShirtIcon } from "lucide-react";
 import ButtonDemo from "./shadcn-space/radix/button/button-16";
 import { SmartCanvas } from "./smart-canvas";
 import { motion, AnimatePresence } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import ButtonShineHoverDemo from "./shadcn-space/radix/button/button-03";
 
 const getBreadcrumbs = (pathname) => {
   if (pathname === "/") {
@@ -58,11 +59,11 @@ const getBreadcrumbs = (pathname) => {
   if (pathname.startsWith("/studio")) {
     return (
       <div className="flex items-center gap-2 text-sm">
-        <Link href="/" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Halaman</Link>
+        <Link href="/" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer"><House /></Link>
         <span className="text-clay-ink/40">/</span>
-        <Link href="/my-wardrobe" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer">Lemariku</Link>
+        <Link href="/my-wardrobe" className="text-clay-ink/70 hover:text-clay-ink cursor-pointer"><Grid2X2 /></Link>
         <span className="text-clay-ink/40">/</span>
-        <Link href="/blueprint"><span className="text-clay-ink/70">Blueprint Pakaian</span></Link>
+        <Link href="/blueprint"><span className="text-clay-ink/70"><ShirtIcon /></span></Link>
         <span className="text-clay-ink/40">/</span>
         <span className="text-clay-ink font-bold">Remake Studio ✨</span>
       </div>
@@ -132,8 +133,8 @@ export function Navbar() {
     >
       <div
         className={`flex items-center justify-between w-full transition-all duration-1000 ease-in-out rounded-full ${scrolled
-          ? "max-w-4xl py-2 px-6 bg-white/50 backdrop-blur-lg shadow-lg shadow-clay-ink/5 border border-clay-ink/10"
-          : "max-w-6xl py-4 px-8 bg-white backdrop-blur-sm shadow-md border border-white/30"
+          ? "max-w-4xl py-2 px-4 bg-white/50 backdrop-blur-lg shadow-lg shadow-clay-ink/5 border border-clay-ink/10"
+          : "max-w-6xl py-4 px-6 bg-white backdrop-blur-sm shadow-md border border-white/30"
           }`}
       >
         {/* Left: Logo */}
@@ -151,12 +152,11 @@ export function Navbar() {
           <div className="w-px h-5 bg-clay-ink/10" />
           <Popover open={isCanvasOpen} onOpenChange={setIsCanvasOpen}>
             <PopoverTrigger asChild>
-              <button
-                className="flex items-center gap-1.5 bg-clay-ink text-white rounded-full px-4 py-1.5 text-sm font-bold hover:scale-95 transition-transform cursor-pointer outline-none"
-              >
-                <Plus className="w-4 h-4" />
-                Scan Baju
-              </button>
+              <ButtonShineHoverDemo
+                className="bg-black"
+                text="Scan Baju"
+                icon={<Plus className="w-4 h-4" />}
+              />
             </PopoverTrigger>
             <PopoverContent
               align="center"
