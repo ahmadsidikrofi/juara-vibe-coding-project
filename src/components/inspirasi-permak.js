@@ -123,7 +123,7 @@ export function InspirasiPermak() {
   const { user } = useAuth()
 
   return (
-    <section className="w-full max-w-7xl mx-auto mt-24 mb-32 px-4 md:px-8">
+    <section className="w-full max-w-7xl mx-auto mt-10 mb-32 px-4 md:px-8">
       <div className="text-center mb-16 animate-slide-up">
         <h2 className="text-3xl md:text-5xl font-extrabold text-clay-ink tracking-tight mb-4">
           Inspirasi <span className="text-clay-sage">Permak</span>
