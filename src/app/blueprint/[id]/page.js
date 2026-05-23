@@ -125,7 +125,7 @@ export default function BlueprintDetailPage({ params }) {
   const activeSlide = slides[activeIndex];
 
   return (
-    <div className="min-h-screen bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24">
+    <div className="min-h-screen mt-18 bg-clay-cream p-6 md:p-12 font-sans text-clay-ink selection:bg-clay-sage selection:text-white pb-24">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}

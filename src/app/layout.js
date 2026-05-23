@@ -41,7 +41,7 @@ export default function RootLayout({ children }) {
             <Navbar />
 
             {/* Subtle noise texture or gradient for rich aesthetics */}
-            <main className="grow pt-20">
+            <main className="grow flex flex-col">
               {children}
             </main>
 

@@ -99,7 +99,7 @@ export default function LoginPage() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
-      className="-mt-20 h-screen lg:grid lg:grid-cols-[60%_40%] bg-clay-cream text-clay-ink selection:bg-clay-sage/30 overflow-hidden"
+      className=" h-screen lg:grid lg:grid-cols-[60%_40%] bg-clay-cream text-clay-ink selection:bg-clay-sage/30 overflow-hidden"
     >
       {/* LEFT SIDE: Visual Storytelling (Desktop Only) */}
       <div className="hidden lg:block relative overflow-hidden h-full bg-clay-ink z-10">
