@@ -2,6 +2,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/auth-context";
 import { Navbar } from "@/components/navbar";
+import { MobileFAB } from "@/components/mobile-fab";
 import { Footer } from "@/components/footer";
 import { Toaster } from "react-hot-toast";
 
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
           <Toaster position="top-center" reverseOrder={false} />
           <div className="relative flex flex-col min-h-screen overflow-hidden">
             <Navbar />
+            <MobileFAB />
 
             {/* Subtle noise texture or gradient for rich aesthetics */}
             <main className="grow flex flex-col">

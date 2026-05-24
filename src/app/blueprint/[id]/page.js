@@ -74,13 +74,146 @@ export default function BlueprintDetailPage({ params }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-clay-cream p-6 md:p-12 pb-24 font-sans max-w-6xl mx-auto flex flex-col gap-8">
-        <div className="h-12 w-full md:w-1/2 lg:w-1/3 bg-clay-sage/10 animate-pulse rounded-2xl mb-4 mt-8"></div>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-5 h-[500px] md:h-[700px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
-          <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="h-[300px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
-            <div className="h-[400px] bg-clay-sage/10 animate-pulse rounded-3xl border border-clay-sage/5"></div>
+      <div className="min-h-screen mt-18 bg-clay-cream p-6 md:p-12 pb-24 font-sans text-clay-ink selection:bg-clay-sage selection:text-white">
+        <div className="max-w-6xl mx-auto flex flex-col gap-8">
+          {/* Header Skeleton */}
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4 animate-pulse">
+            <div className="p-3 bg-white rounded-full shadow-sm border border-clay-ink/5 shrink-0">
+              <ArrowLeft className="w-6 h-6 text-clay-ink/20" />
+            </div>
+            <div className="space-y-3 flex-1">
+              <div className="h-10 w-3/4 md:w-1/2 bg-clay-sage/15 rounded-2xl border border-clay-sage/5"></div>
+              <div className="h-5 w-1/3 md:w-1/4 bg-clay-ink/10 rounded-xl"></div>
+            </div>
+            <div className="w-full md:w-auto flex items-center md:ml-auto gap-4 mt-6 md:mt-0">
+              <div className="h-14 w-28 bg-clay-pink/15 rounded-2xl border border-clay-pink/5 flex-1 md:flex-initial"></div>
+              <div className="h-14 w-60 bg-clay-sage/15 rounded-2xl border border-clay-sage/5 flex-1 md:flex-initial"></div>
+            </div>
+          </div>
+
+          {/* Main Grid Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            {/* Left Column Skeleton */}
+            <div className="lg:col-span-5 flex flex-col gap-6">
+              {/* Gallery Placeholder */}
+              <div className="h-[480px] md:h-[640px] bg-white rounded-[32px] p-6 border border-clay-ink/5 shadow-sm flex flex-col gap-4 animate-pulse">
+                <div className="flex-1 bg-clay-sage/10 rounded-2xl flex items-center justify-center border border-clay-sage/5 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-clay-sage/5 via-clay-sage/10 to-transparent"></div>
+                  <div className="w-16 h-16 rounded-full bg-clay-sage/10 flex items-center justify-center text-clay-sage/40">
+                    <Sparkles className="w-8 h-8 animate-spin" style={{ animationDuration: '3s' }} />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center mt-2 px-2 shrink-0">
+                  <div className="h-4 w-24 bg-clay-ink/10 rounded-lg"></div>
+                  <div className="flex gap-2">
+                    <div className="w-8 h-8 rounded-full bg-clay-ink/10"></div>
+                    <div className="w-8 h-8 rounded-full bg-clay-ink/10"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Titik Kerusakan Placeholder */}
+              <div className="bg-white rounded-[28px] p-5 border border-clay-ink/5 shadow-sm space-y-4 animate-pulse">
+                <div className="h-4 w-32 bg-clay-ink/10 rounded-lg"></div>
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-3 bg-clay-pink/5 rounded-2xl border border-clay-pink/5">
+                    <div className="w-6 h-6 rounded-full bg-clay-pink/15 shrink-0"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 w-1/3 bg-clay-ink/10 rounded-md"></div>
+                      <div className="h-3 w-1/2 bg-clay-ink/5 rounded-md"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Eco Impact Placeholder */}
+              <div className="bg-gradient-to-br from-clay-sage/10 to-clay-sage/5 rounded-[28px] p-6 border border-clay-sage/10 shadow-sm space-y-4 animate-pulse">
+                <div className="h-6 w-36 bg-clay-sage/20 rounded-xl"></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-white/60 p-4 rounded-2xl border border-clay-sage/5 space-y-2">
+                    <div className="w-6 h-6 rounded-lg bg-blue-100/50"></div>
+                    <div className="h-3 w-12 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-5 w-16 bg-clay-ink/20 rounded-md"></div>
+                  </div>
+                  <div className="bg-white/60 p-4 rounded-2xl border border-clay-sage/5 space-y-2">
+                    <div className="w-6 h-6 rounded-lg bg-green-100/50"></div>
+                    <div className="h-3 w-16 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-5 w-12 bg-clay-ink/20 rounded-md"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tailor Card Placeholder */}
+              <div className="bg-white rounded-[28px] p-6 border border-clay-ink/5 shadow-sm space-y-4 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-clay-ink/10"></div>
+                  <div className="space-y-2">
+                    <div className="h-4 w-32 bg-clay-ink/15 rounded-md"></div>
+                    <div className="h-3 w-20 bg-clay-ink/10 rounded-md"></div>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-2">
+                  <div className="h-4 w-full bg-clay-ink/5 rounded-md"></div>
+                  <div className="h-4 w-5/6 bg-clay-ink/5 rounded-md"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column Skeleton */}
+            <div className="lg:col-span-7 flex flex-col gap-6">
+              {/* Technical Specs Placeholder */}
+              <div className="bg-white rounded-[28px] p-8 shadow-sm border border-clay-ink/5 space-y-6 animate-pulse">
+                <div className="h-8 w-44 bg-clay-ink/15 rounded-xl"></div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <div className="h-3 w-12 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-5 w-24 bg-clay-ink/20 rounded-md"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-12 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-5 w-20 bg-clay-ink/20 rounded-md"></div>
+                  </div>
+                </div>
+                <div className="space-y-2 pt-2">
+                  <div className="flex justify-between">
+                    <div className="h-3 w-24 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-4 w-12 bg-clay-pink/20 rounded-md"></div>
+                  </div>
+                  <div className="w-full h-3 bg-clay-ink/10 rounded-full"></div>
+                </div>
+                <div className="p-5 bg-clay-sage/5 rounded-2xl border border-clay-sage/10 flex gap-4">
+                  <div className="w-6 h-6 rounded-full bg-clay-sage/20 shrink-0"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-32 bg-clay-sage/20 rounded-md"></div>
+                    <div className="h-3 w-full bg-clay-ink/5 rounded-md"></div>
+                    <div className="h-3 w-4/5 bg-clay-ink/5 rounded-md"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Guide Panel / DIY Stepper Placeholder */}
+              <div className="bg-white rounded-[28px] p-8 shadow-sm border border-clay-ink/5 space-y-6 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-clay-ink/10 flex items-center justify-center shrink-0"></div>
+                  <div className="space-y-2">
+                    <div className="h-3 w-24 bg-clay-ink/10 rounded-md"></div>
+                    <div className="h-5 w-48 bg-clay-ink/20 rounded-md"></div>
+                  </div>
+                </div>
+                <div className="space-y-6 pt-4 border-t border-clay-ink/10">
+                  {[1, 2, 3].map((step) => (
+                    <div key={step} className="flex gap-4 items-start">
+                      <div className="w-8 h-8 rounded-full bg-clay-ink/10 shrink-0 flex items-center justify-center"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 w-1/4 bg-clay-ink/15 rounded-md"></div>
+                        <div className="h-3 w-full bg-clay-ink/5 rounded-md"></div>
+                        <div className="h-3 w-5/6 bg-clay-ink/5 rounded-md"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

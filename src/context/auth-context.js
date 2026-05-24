@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
     const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setUser(currentUser);
-        
+
         // Subscribe to user's wardrobe items
         const q = query(
           collection(db, "projects"),
@@ -97,22 +97,73 @@ export function AuthProvider({ children }) {
     <AuthContext.Provider value={{ user, loading, loginWithGoogle, logout, wardrobeItems }}>
       {loading ? (
         <div className="min-h-screen w-full flex flex-col items-center justify-center bg-clay-cream selection:bg-transparent">
-          <div className="relative flex items-center justify-center">
-            {/* Outer soft glowing ring */}
-            <div className="absolute w-32 h-32 bg-clay-sage/30 rounded-full blur-xl animate-pulse" />
+          {/* Inline keyframes for orbit animation */}
+          <style dangerouslySetInnerHTML={{
+            __html: `
+            @keyframes orbit {
+              from { transform: rotate(0deg); }
+              to { transform: rotate(360deg); }
+            }
+            @keyframes orbit-reverse {
+              from { transform: rotate(360deg); }
+              to { transform: rotate(0deg); }
+            }
+            @keyframes logo-breathe {
+              0%, 100% { transform: scale(1); opacity: 0.9; }
+              50% { transform: scale(1.05); opacity: 1; }
+            }
+          `}} />
 
-            {/* Spinning gradient border */}
-            <div className="absolute w-24 h-24 rounded-full border-[6px] border-t-clay-sage border-r-clay-lavender border-b-clay-pink border-l-transparent animate-spin" style={{ animationDuration: '1.5s' }} />
+          <div className="relative flex items-center justify-center" style={{ width: 160, height: 160 }}>
+            {/* Outer soft ambient glow */}
+            <div className="absolute inset-0 bg-clay-sage/20 rounded-full blur-2xl scale-150 animate-pulse" />
 
-            {/* Inner solid clay circle */}
-            <div className="relative w-16 h-16 bg-white rounded-full shadow-lg shadow-clay-ink/10 flex items-center justify-center z-10">
-              <div className="w-8 h-8 rounded-full bg-linear-to-br from-clay-lavender to-clay-pink opacity-80 animate-pulse" />
+            {/* Orbit Ring 1 - Primary (clockwise) */}
+            <div
+              className="absolute inset-0 rounded-full"
+              style={{
+                animation: 'orbit 2.5s linear infinite',
+                border: '3px solid transparent',
+                borderTopColor: '#A4D4C5',
+                borderRightColor: '#D4B5D6',
+              }}
+            />
+
+            {/* Orbit Ring 2 - Secondary (counter-clockwise, slightly smaller) */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                inset: 12,
+                animation: 'orbit-reverse 1.8s linear infinite',
+                border: '2px solid transparent',
+                borderBottomColor: '#F2B8A2',
+                borderLeftColor: '#A4D4C5',
+              }}
+            />
+
+            {/* Orbit Ring 3 - Subtle dashed outer ring */}
+            <div
+              className="absolute rounded-full"
+              style={{
+                inset: -8,
+                animation: 'orbit 4s linear infinite',
+                border: '1.5px dashed rgba(45, 55, 72, 0.08)',
+              }}
+            />
+
+            {/* Logo centered */}
+            <div
+              className="relative z-10 w-20 h-20 rounded-full bg-white shadow-xl shadow-clay-ink/10 flex items-center justify-center overflow-hidden"
+              style={{ animation: 'logo-breathe 3s ease-in-out infinite' }}
+            >
+              <img
+                src="/logo.png"
+                alt="Permak.in"
+                className="w-14 h-14 object-contain"
+              />
             </div>
           </div>
-
-          <h2 className="mt-8 text-xl font-extrabold text-clay-ink tracking-widest uppercase opacity-70 animate-pulse flex items-center gap-1">
-            Permak<span className="text-clay-sage">.in</span>
-          </h2>
+          <p className="mt-2 text-sm text-clay-ink/40 font-medium tracking-wide">Menyiapkan studio-mu...</p>
         </div>
       ) : (
         children

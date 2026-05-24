@@ -14,12 +14,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch, HomeIcon, Plus, Sparkles, Leaf, House, Grid2X2, ShirtIcon } from "lucide-react";
+import { Menu, X, Scissors, Wand2, LogOut, Settings, LayoutGrid, ScanSearch, HomeIcon, Plus, Sparkles, Leaf, House, Grid2X2, ShirtIcon, Home } from "lucide-react";
 import ButtonDemo from "./shadcn-space/radix/button/button-16";
 import { SmartCanvas } from "./smart-canvas";
 import { motion, AnimatePresence } from "framer-motion";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import ButtonShineHoverDemo from "./shadcn-space/radix/button/button-03";
+import Image from "next/image";
 
 const getBreadcrumbs = (pathname) => {
   if (pathname === "/") {
@@ -137,9 +138,10 @@ export function Navbar() {
           : "max-w-6xl py-4 px-6 bg-white backdrop-blur-sm shadow-md border border-white/30"
           }`}
       >
-        {/* Left: Logo */}
-        <div className="flex-1 flex justify-start">
+        {/* Left: Logo (Hidden on Mobile) */}
+        <div className="hidden md:flex flex-1 justify-start">
           <Link href="/" className="flex items-center gap-1 z-50">
+            <Image src="/logo.png" alt="Logo" width={30} height={30} className="rounded-full" />
             <span className="text-2xl font-extrabold tracking-tight text-clay-ink font-sans">
               Permak<span className="text-clay-sage">.in</span>
             </span>
@@ -163,7 +165,6 @@ export function Navbar() {
               sideOffset={15}
               className="w-[90vw] max-w-xl px-8 backdrop-blur-xl border-clay-ink/10 shadow-2xl rounded-3xl overflow-hidden data-[state=open]:slide-in-from-top-2 data-[state=closed]:slide-out-to-top-2 data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 duration-300"
             >
-              {/* Tutup tombol asli di SmartCanvas kalau mau, tapi kita biarkan apa adanya */}
               <div className="overflow-y-auto">
                 <SmartCanvas />
               </div>
@@ -171,119 +172,74 @@ export function Navbar() {
           </Popover>
         </div>
 
-        {/* Right: Actions & Mobile Toggle */}
-        <div className="flex-1 flex justify-end items-center z-50 gap-3">
-          <div className="hidden md:flex items-center gap-5">
-            {/* Eco-Badge */}
-            <div className={`hidden lg:flex items-end gap-2 bg-clay-sage/10 text-clay-sage px-3 py-1.5 rounded-full text-xs font-bold border border-clay-sage/20 shadow-inner transition-transform duration-300 ${isAnimating ? "scale-110 ring-2 ring-clay-sage/50" : ""}`}>
-              <Leaf className={`w-3.5 h-3.5 ${isAnimating ? "animate-bounce" : ""}`} />
-              <span>{totalWaterSaved > 0 ? `${totalWaterSaved.toLocaleString("id-ID")} L Air` : "🌿 0 L Air"}</span>
-            </div>
+        {/* Right: Actions */}
+        <div className="flex-1 flex justify-between md:justify-end items-center z-50 gap-3 w-full md:w-auto">
+          {/* Eco-Badge (Left on Mobile, inside flex-1 on Desktop) */}
+          <div className={`flex items-center gap-1.5 bg-clay-sage/10 text-clay-sage px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[10px] md:text-xs font-bold border border-clay-sage/20 shadow-inner transition-transform duration-300 ${isAnimating ? "scale-110 ring-2 ring-clay-sage/50" : ""}`}>
+            <Leaf className={`w-3 h-3 md:w-3.5 md:h-3.5 ${isAnimating ? "animate-bounce" : ""}`} />
+            <span>{totalWaterSaved > 0 ? `${totalWaterSaved.toLocaleString("id-ID")} L Air` : "0 L Air"}</span>
+          </div>
 
+          <div className="flex items-center gap-2 md:gap-5">
             {user ? (
               <DropdownMenu>
-                <DropdownMenuTrigger className="outline-none rounded-xl cursor-pointer hover:ring-4 hover:ring-clay-sage/20 transition-all">
-                  <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
+                <DropdownMenuTrigger className="outline-none rounded-xl cursor-pointer hover:ring-4 hover:ring-clay-sage/20 transition-all flex items-center">
+                  <Avatar className="w-8 h-8 md:w-10 md:h-10 border-2 border-white shadow-sm">
                     <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
-                    <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
+                    <AvatarFallback className="bg-clay-peach text-clay-ink font-bold text-xs md:text-sm">
                       {user?.displayName?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="center" className="w-56 rounded-xl p-2 bg-white/95 backdrop-blur-xl border-clay-ink/5 shadow-xl mt-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200">
+                <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 bg-white/95 backdrop-blur-xl border-clay-ink/5 shadow-xl mt-2 data-[state=open]:slide-in-from-bottom-2 data-[state=closed]:slide-out-to-bottom-2 data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 duration-200">
                   <DropdownMenuLabel className="flex items-center gap-3 px-2 py-2">
-                    <Avatar className="w-8 h-8 border-2 border-white shadow-sm">
-                      <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
-                      <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
-                        {user?.displayName?.charAt(0) || "U"}
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="relative">
+                      <Avatar className="w-10 h-10 border-2 border-white shadow-sm">
+                        <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
+                        <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
+                          {user?.displayName?.charAt(0) || "U"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="absolute right-0 bottom-0 w-2.5 h-2.5 rounded-full bg-green-500 ring-2 ring-white" />
+                    </div>
                     <div className="flex flex-col overflow-hidden">
                       <span className="font-bold text-clay-ink text-sm truncate">{user.displayName || "User Permak.in"}</span>
                       <span className="text-xs text-clay-ink/60 truncate">{user.email}</span>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator className="bg-clay-ink/5" />
+
+                  {/* Navigation Links */}
                   <DropdownMenuGroup>
-                    <DropdownMenuItem onClick={() => router.push('/my-wardrobe')} className="p-2 text-sm font-medium text-clay-ink cursor-pointer gap-2 hover:bg-clay-ink/5 rounded-xl">
-                      <span className="text-lg">👕</span>
+                    <DropdownMenuItem onClick={() => router.push('/')} className="flex gap-0 p-2 text-sm font-medium text-clay-ink cursor-pointer gap-3 hover:bg-clay-ink/5 rounded-xl">
+                      <Home className="w-4 h-4 text-clay-ink/70" />
+                      <span>Permak.in</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push('/my-wardrobe')} className="p-2 text-sm font-medium text-clay-ink cursor-pointer gap-3 hover:bg-clay-ink/5 rounded-xl">
+                      <LayoutGrid className="w-4 h-4 text-clay-ink/70" />
                       <span>Lemariku</span>
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
+
                   <DropdownMenuSeparator className="bg-clay-ink/5" />
-                  <DropdownMenuItem onClick={logout} className="p-2 text-sm font-medium text-red-600 cursor-pointer gap-2 hover:bg-red-50 rounded-xl">
-                    <span className="text-lg">🚪</span>
+
+                  <DropdownMenuItem onClick={logout} className="p-2 text-sm font-medium text-red-600 cursor-pointer gap-3 hover:bg-red-50 rounded-xl">
+                    <LogOut className="w-4 h-4" />
                     <span>Keluar</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Link href="/login">
-                <ButtonDemo text="Sign in" className="px-6 py-2.5 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage hover:scale-105 active:scale-95 transition-all shadow-md text-lg tracking-wide" />
+                <ButtonDemo
+                  text="Sign in"
+                  className="px-4 py-2 text-xs md:px-6 md:py-2.5 md:text-sm bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage hover:scale-105 active:scale-95 transition-all shadow-md tracking-wide border-0 font-sans cursor-pointer"
+                />
               </Link>
             )}
           </div>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            className="md:hidden p-2 text-clay-ink hover:bg-clay-ink/5 rounded-full transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile Menu Bottom Sheet/Dropdown */}
-      {mobileMenuOpen && (
-        <div className="absolute top-[calc(100%+1rem)] left-4 right-4 bg-white/95 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-clay-ink/5 flex flex-col gap-6 md:hidden animate-slide-up">
-          <nav className="flex flex-col gap-4 font-bold text-lg text-clay-ink">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)}>Home</Link>
-            <div className="h-px w-full bg-clay-ink/5" />
-            <span className="text-sm text-clay-ink/50 uppercase tracking-wider">Layanan</span>
-            <Link href="#" className="flex items-center gap-3 pl-2" onClick={() => setMobileMenuOpen(false)}>
-              <ScanSearch className="w-5 h-5 text-clay-lavender" /> Diagnosis Baju
-            </Link>
-            <Link href="#" className="flex items-center gap-3 pl-2" onClick={() => setMobileMenuOpen(false)}>
-              <Scissors className="w-5 h-5 text-clay-sage" /> Solusi Perbaikan
-            </Link>
-            <Link href="#" className="flex items-center gap-3 pl-2" onClick={() => setMobileMenuOpen(false)}>
-              <Wand2 className="w-5 h-5 text-clay-pink" /> Remake Studio
-            </Link>
-            <div className="h-px w-full bg-clay-ink/5" />
-            <Link href="#inspirasi" onClick={() => setMobileMenuOpen(false)}>Inspirasi</Link>
-            <Link href="#tentang" onClick={() => setMobileMenuOpen(false)}>Tentang Kami</Link>
-          </nav>
-
-          <div className="pt-4 mt-2 border-t border-clay-ink/5">
-            {user ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Avatar className="w-10 h-10 border-2 border-clay-sage/30">
-                    <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
-                    <AvatarFallback className="bg-clay-peach text-clay-ink font-bold">
-                      {user?.displayName?.charAt(0) || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex flex-col">
-                    <span className="font-bold text-sm truncate max-w-[150px]">{user.displayName || "User"}</span>
-                    <span className="text-xs text-clay-ink/60">My Wardrobe</span>
-                  </div>
-                </div>
-                <button onClick={logout} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
-                  <LogOut className="w-5 h-5" />
-                </button>
-              </div>
-            ) : (
-              <Link href="/login">
-                <button className="w-full py-3 bg-clay-ink text-white font-bold rounded-full hover:bg-clay-sage transition-all shadow-md">
-                  Login / Register
-                </button>
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
     </header>
   );
 }
