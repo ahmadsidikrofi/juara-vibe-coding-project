@@ -104,46 +104,52 @@ const MyWardrobePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-6xl mx-auto mb-12 flex items-center gap-4"
             >
-                <button
-                    onClick={() => router.push("/")}
-                    className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1 cursor-pointer"
-                >
-                    <ArrowLeft className="w-6 h-6" />
-                </button>
-                <div>
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
-                        My <span className="text-clay-sage">Wardrobe</span>
-                    </h1>
-                    <p className="text-clay-ink/60 text-lg mt-1 font-medium">Koleksi pakaian yang telah kamu scan.</p>
-                </div>
-
-                {/* View Toggle Tabs */}
-                {!loading && wardrobeItems.length > 0 && (
-                    <div className="ml-auto flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
+                <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-4">
+                    <div className="flex items-center max-sm:gap-4">
                         <button
-                            onClick={() => handleViewChange("masonry")}
-                            className={cn(
-                                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
-                                viewMode === "masonry" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
-                            )}>
-                            <LayoutGrid className="w-4 h-4" />
-                            Grid
+                            onClick={() => router.push("/")}
+                            className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1 cursor-pointer"
+                        >
+                            <ArrowLeft className="w-6 h-6" />
                         </button>
-                        <button
-                            onClick={() => handleViewChange("infinite")}
-                            // bundle-preload: preload InfiniteMenu JS saat hover, sebelum diklik
-                            onMouseEnter={preloadInfiniteMenu}
-                            onFocus={preloadInfiniteMenu}
-                            className={cn(
-                                "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
-                                viewMode === "infinite" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50",
-                                isViewSwitching && viewMode !== "infinite" && "opacity-70"
-                            )}>
-                            <Rotate3D className="w-4 h-4" />
-                            3D Gallery
-                        </button>
+                        <div>
+                            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+                                My <span className="text-clay-sage">Wardrobe</span>
+                            </h1>
+                            <p className="text-clay-ink/60 text-lg mt-1 font-medium">Koleksi pakaian yang telah kamu scan.</p>
+                        </div>
                     </div>
-                )}
+
+                    <div>
+                        {/* View Toggle Tabs */}
+                        {!loading && wardrobeItems.length > 0 && (
+                            <div className="ml-auto flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
+                                <button
+                                    onClick={() => handleViewChange("masonry")}
+                                    className={cn(
+                                        "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
+                                        viewMode === "masonry" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50"
+                                    )}>
+                                    <LayoutGrid className="w-4 h-4" />
+                                    Grid
+                                </button>
+                                <button
+                                    onClick={() => handleViewChange("infinite")}
+                                    // bundle-preload: preload InfiniteMenu JS saat hover, sebelum diklik
+                                    onMouseEnter={preloadInfiniteMenu}
+                                    onFocus={preloadInfiniteMenu}
+                                    className={cn(
+                                        "flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold transition-all cursor-pointer",
+                                        viewMode === "infinite" ? "bg-clay-sage text-white shadow-md" : "text-clay-ink/50 hover:text-clay-ink hover:bg-white/50",
+                                        isViewSwitching && viewMode !== "infinite" && "opacity-70"
+                                    )}>
+                                    <Rotate3D className="w-4 h-4" />
+                                    3D Gallery
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </motion.div>
 
             <div className="max-w-6xl mx-auto">

@@ -1024,7 +1024,7 @@ export default function InfiniteMenu({ items = [], scale = 1.0 }) {
                             }
         `}
                     >
-                        {activeItem.description}
+                        {/* {activeItem.description} */}
                     </p>
 
                     <ButtonRipleSpotlight
