@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Wand2, BookmarkCheck } from "lucide-react";
+import { ProgressLoader } from "@/components/ui/progress-loader";
 
 export default function ResultsPanel({
   isGenerating,
@@ -35,12 +36,54 @@ export default function ResultsPanel({
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="h-full min-h-[300px] bg-clay-sage/5 rounded-2xl border-2 border-dashed border-clay-sage/20 flex flex-col items-center justify-center text-center p-6 gap-4"
+            className="h-full min-h-[300px] bg-gradient-to-br from-clay-sage/5 via-white to-clay-lavender/5 rounded-2xl border border-clay-sage/15 flex flex-col items-center justify-center text-center p-8 gap-6 relative overflow-hidden"
           >
-            <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-clay-sage animate-pulse" />
-            </div>
-            <p className="font-bold text-clay-ink/70">AI sedang memproses imajinasimu...</p>
+            {/* Decorative floating orbs */}
+            <motion.div
+              className="absolute w-32 h-32 bg-clay-sage/15 rounded-full filter blur-2xl"
+              animate={{
+                scale: [1, 1.3, 1],
+                x: [0, 40, 0],
+                y: [0, -20, 0],
+              }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute w-24 h-24 bg-clay-pink/15 rounded-full filter blur-2xl"
+              animate={{
+                scale: [1, 1.4, 1],
+                x: [0, -30, 0],
+                y: [0, 25, 0],
+              }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            />
+
+            {/* Progress card */}
+            <motion.div
+              className="relative z-10 w-full max-w-xs px-6 py-6 bg-white/85 border border-white/60 shadow-lg shadow-clay-ink/5 rounded-2xl backdrop-blur-xl"
+              initial={{ scale: 0.92, y: 12 }}
+              animate={{ scale: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            >
+              {/* Spinning icon */}
+              <div className="flex justify-center mb-5">
+                <div className="w-14 h-14 bg-clay-sage/10 rounded-full flex items-center justify-center border border-clay-sage/15">
+                  <Sparkles className="w-7 h-7 text-clay-sage animate-pulse" />
+                </div>
+              </div>
+
+              <ProgressLoader
+                isActive={isGenerating}
+                stages={[
+                  "Membaca desain pakaian...",
+                  "Merancang ulang dengan AI...",
+                  "Membuat visual preview...",
+                  "Menyusun instruksi pembuatan...",
+                  "Hampir selesai...",
+                ]}
+                estimatedDurationMs={25000}
+              />
+            </motion.div>
           </motion.div>
         ) : history.length > 0 ? (
           <motion.div

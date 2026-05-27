@@ -104,8 +104,8 @@ const MyWardrobePage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="max-w-6xl mx-auto mb-12 flex items-center gap-4"
             >
-                <div className="flex max-sm:flex-col max-sm:items-start max-sm:gap-4">
-                    <div className="flex items-center max-sm:gap-4">
+                <div className="flex w-full justify-between items-center max-sm:flex-col max-sm:items-start max-sm:gap-4">
+                    <div className="flex flex-col mx-auto items-start max-sm:gap-4">
                         <button
                             onClick={() => router.push("/")}
                             className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1 cursor-pointer"

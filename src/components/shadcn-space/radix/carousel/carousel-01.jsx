@@ -4,6 +4,12 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
 import { ShieldAlert } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 export default function BlueprintCarousel({ slides = [], onSlideChange, kerusakan = [] }) {
   const [api, setApi] = useState();
@@ -64,19 +70,31 @@ export default function BlueprintCarousel({ slides = [], onSlideChange, kerusaka
                     <div
                       key={`pin-${i}`}
                       className="absolute z-20"
-                      style={{ left: `${x}%`, top: `${y}%`, transform: "translate(-50%, -50%)" }}
+                      style={{
+                        left: `${x}%`,
+                        top: `${y}%`,
+                        transform: "translate(-50%, -50%)",
+                      }}
                     >
-                      <div className="relative">
-                        <div className="w-8 h-8 bg-clay-pink/50 rounded-full animate-ping absolute inset-0" />
-                        <div
-                          className="w-8 h-8 bg-clay-pink/80 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white backdrop-blur-sm cursor-help hover:scale-110 transition-transform"
-                          title={k.deskripsi}
-                        >
-                          <ShieldAlert className="w-4 h-4" />
-                        </div>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="relative cursor-help">
+                              <div className="w-8 h-8 bg-clay-pink/50 rounded-full animate-ping absolute inset-0" />
+
+                              <div className="w-8 h-8 bg-clay-pink/80 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-white backdrop-blur-sm hover:scale-110 transition-transform">
+                                <ShieldAlert className="w-4 h-4" />
+                              </div>
+                            </div>
+                          </TooltipTrigger>
+
+                          <TooltipContent side="left" className="p-4 bg-white border-clay-ink/5 rounded-2xl border shadow-lg">
+                            <p className="text-clay-ink font-medium text-sm">{k.deskripsi}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
-                  );
+                  )
                 })}
 
                 {/* Slide Label Badge */}
@@ -87,7 +105,7 @@ export default function BlueprintCarousel({ slides = [], onSlideChange, kerusaka
                       ? "bg-clay-lavender/80 text-clay-ink border-clay-lavender/30"
                       : "bg-white/70 text-clay-ink border-white/40"
                   )}>
-                    {slide.type === "remake" ? "✨ Remake" : "📸 Asli"}
+                    {slide.type === "remake" ? `✨ Remake${slide.version ? ` v${slide.version}` : ""}` : "📸 Asli"}
                   </span>
                 </div>
               </div>

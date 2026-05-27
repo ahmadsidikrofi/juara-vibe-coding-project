@@ -1,11 +1,41 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { UploadCloud, Image as ImageIcon, X, Loader2 } from "lucide-react";
+import { UploadCloud, Image as ImageIcon, X } from "lucide-react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import ButtonRipleSpotlight from "./shadcn-space/radix/button/button-16";
+import { ProgressLoader } from "./ui/progress-loader";
+
+// Helper untuk kompresi base64 agar aman disimpan di Firestore (limit 1MB)
+const compressImageBase64 = (base64Str, maxWidth = 800, quality = 0.6) => {
+  return new Promise((resolve) => {
+    if (!base64Str || !base64Str.startsWith('data:image')) {
+      resolve(base64Str);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(base64Str); // Fallback ke asli jika gagal
+    img.src = base64Str;
+  });
+};
 
 export function SmartCanvas() {
   const [dragActive, setDragActive] = useState(false);
@@ -131,9 +161,12 @@ export function SmartCanvas() {
         // Convert file to base64 so it survives hard refresh on /blueprint
         const readerBase64 = new FileReader();
         readerBase64.readAsDataURL(selectedFile);
-        readerBase64.onload = () => {
+        readerBase64.onload = async () => {
+          const rawBase64 = readerBase64.result;
+          const compressedBase64 = await compressImageBase64(rawBase64, 800, 0.6);
+          
           sessionStorage.setItem("blueprintData", JSON.stringify({
-            image: readerBase64.result,
+            image: compressedBase64,
             analysis: data
           }));
           router.push('/blueprint');
@@ -201,10 +234,11 @@ export function SmartCanvas() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/30 backdrop-blur-md overflow-hidden rounded-2xl"
+                  className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/50 backdrop-blur-xl overflow-hidden rounded-2xl"
                 >
+                  {/* Ambient blobs */}
                   <motion.div
-                    className="absolute w-48 h-48 bg-clay-sage/40 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+                    className="absolute w-48 h-48 bg-clay-sage/30 rounded-full mix-blend-multiply filter blur-2xl opacity-60"
                     animate={{
                       scale: [1, 1.2, 1],
                       x: [0, 30, 0],
@@ -213,7 +247,7 @@ export function SmartCanvas() {
                     transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                   />
                   <motion.div
-                    className="absolute w-48 h-48 bg-clay-pink/40 rounded-full mix-blend-multiply filter blur-xl opacity-70"
+                    className="absolute w-48 h-48 bg-clay-pink/30 rounded-full mix-blend-multiply filter blur-2xl opacity-60"
                     animate={{
                       scale: [1, 1.5, 1],
                       x: [0, -30, 0],
@@ -221,13 +255,25 @@ export function SmartCanvas() {
                     }}
                     transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
                   />
+
+                  {/* Progress card */}
                   <motion.div
-                    className="relative z-20 px-6 py-3 bg-white/60 border border-white/50 shadow-xl shadow-clay-ink/5 rounded-full backdrop-blur-xl flex items-center gap-3"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    className="relative z-20 w-[280px] px-6 py-5 bg-white/80 border border-white/60 shadow-xl shadow-clay-ink/5 rounded-2xl backdrop-blur-xl"
+                    initial={{ scale: 0.9, y: 10 }}
+                    animate={{ scale: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
                   >
-                    <Loader2 className="w-5 h-5 text-clay-ink animate-spin" />
-                    <span className="font-bold text-clay-ink tracking-wide">{analyzingText}</span>
+                    <ProgressLoader
+                      isActive={isAnalyzing}
+                      stages={[
+                        "Mengunggah gambar...",
+                        analyzingText,
+                        "Mengidentifikasi kerusakan...",
+                        "Menghitung dampak lingkungan...",
+                        "Menyusun blueprint...",
+                      ]}
+                      estimatedDurationMs={18000}
+                    />
                   </motion.div>
                 </motion.div>
               )}

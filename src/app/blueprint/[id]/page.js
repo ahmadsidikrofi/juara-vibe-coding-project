@@ -52,6 +52,7 @@ export default function BlueprintDetailPage({ params }) {
             image: docData.imageUrl,
             analysis: docData.diagnosis,
             remake: docData.remake || null,
+            remakeHistory: docData.remakeHistory || null,
             uniqueId: docData.projectId || `#PRMK-${projectId.substring(0, 5).toUpperCase()}`
           });
         } else {
@@ -98,9 +99,16 @@ export default function BlueprintDetailPage({ params }) {
               {/* Gallery Placeholder */}
               <div className="h-[480px] md:h-[640px] bg-white rounded-[32px] p-6 border border-clay-ink/5 shadow-sm flex flex-col gap-4 animate-pulse">
                 <div className="flex-1 bg-clay-sage/10 rounded-2xl flex items-center justify-center border border-clay-sage/5 relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-clay-sage/5 via-clay-sage/10 to-transparent"></div>
-                  <div className="w-16 h-16 rounded-full bg-clay-sage/10 flex items-center justify-center text-clay-sage/40">
-                    <Sparkles className="w-8 h-8 animate-spin" style={{ animationDuration: '3s' }} />
+                  <div className="absolute inset-0 bg-linear-to-tr from-clay-sage/5 via-clay-sage/10 to-transparent"></div>
+                  <div
+                    className="relative z-10 w-20 h-20 rounded-full bg-white shadow-xl shadow-clay-ink/10 flex items-center justify-center overflow-hidden"
+                    style={{ animation: 'logo-breathe 3s ease-in-out infinite' }}
+                  >
+                    <img
+                      src="/logo.png"
+                      alt="Permak.in"
+                      className="w-14 h-14 object-contain"
+                    />
                   </div>
                 </div>
                 <div className="flex justify-between items-center mt-2 px-2 shrink-0">
@@ -237,9 +245,36 @@ export default function BlueprintDetailPage({ params }) {
     );
   }
 
-  const { image, analysis, remake, uniqueId } = data;
+  const { image, analysis, remake, remakeHistory, uniqueId } = data;
 
-  // Build slides array — always show original, conditionally add remake
+  // Build slides array — always show original, then all remakes
+  const remakeSlides = [];
+  if (remakeHistory && Array.isArray(remakeHistory) && remakeHistory.length > 0) {
+    // New format: array of remakes
+    remakeHistory.forEach((item, idx) => {
+      if (item.imageUrl) {
+        remakeSlides.push({
+          id: `remake-${idx}`,
+          type: "remake",
+          url: item.imageUrl,
+          title: item.title || `Remake Versi ${idx + 1}`,
+          recipe: item.recipe || [],
+          version: idx + 1,
+        });
+      }
+    });
+  } else if (remake?.imageUrl) {
+    // Backward compat: old single-object format
+    remakeSlides.push({
+      id: "remake",
+      type: "remake",
+      url: remake.imageUrl,
+      title: remake.title || "Panduan Remake Studio",
+      recipe: remake.recipe || [],
+      version: 1,
+    });
+  }
+
   const slides = [
     {
       id: "original",
@@ -247,12 +282,7 @@ export default function BlueprintDetailPage({ params }) {
       url: image,
       title: "Panduan Perbaikan"
     },
-    ...(remake?.imageUrl ? [{
-      id: "remake",
-      type: "remake",
-      url: remake.imageUrl,
-      title: remake.title || "Panduan Remake Studio"
-    }] : [])
+    ...remakeSlides
   ];
 
   const activeSlide = slides[activeIndex];
@@ -442,9 +472,9 @@ export default function BlueprintDetailPage({ params }) {
               >
                 <DiyStepper diy={analysis.diy} />
               </motion.div>
-            ) : (
+            ) : activeSlide?.type === "remake" ? (
               <motion.div
-                key="remake-guide"
+                key={`remake-guide-${activeSlide.id}`}
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -16 }}
@@ -456,13 +486,13 @@ export default function BlueprintDetailPage({ params }) {
                     <Wand2 className="w-5 h-5 text-clay-ink" />
                   </div>
                   <div>
-                    <p className="text-xs font-black uppercase tracking-widest text-clay-ink/40">Remake Studio</p>
-                    <h2 className="text-2xl font-bold">{remake?.title || "Panduan Remake"}</h2>
+                    <p className="text-xs font-black uppercase tracking-widest text-clay-ink/40">Remake Studio {remakeSlides.length > 1 ? `· Versi ${activeSlide.version}` : ""}</p>
+                    <h2 className="text-2xl font-bold">{activeSlide.title || "Panduan Remake"}</h2>
                   </div>
                 </div>
 
                 <ul className="space-y-4">
-                  {remake?.recipe?.map((step, idx) => {
+                  {activeSlide.recipe?.map((step, idx) => {
                     const parts = step.split(/(\*\*.*?\*\*)/g);
                     const rendered = parts.map((part, i) =>
                       part.startsWith("**") && part.endsWith("**")
@@ -470,7 +500,7 @@ export default function BlueprintDetailPage({ params }) {
                         : <span key={i}>{part}</span>
                     );
                     return (
-                      <li key={`remake-step-${idx}`} className="flex gap-4 items-start bg-clay-lavender/10 p-4 rounded-2xl border border-clay-lavender/10">
+                      <li key={`remake-step-${activeSlide.id}-${idx}`} className="flex gap-4 items-start bg-clay-lavender/10 p-4 rounded-2xl border border-clay-lavender/10">
                         <div className="w-8 h-8 rounded-full bg-clay-lavender/30 text-clay-ink flex items-center justify-center shrink-0 mt-0.5 font-bold text-sm shadow-inner">
                           {idx + 1}
                         </div>
@@ -480,7 +510,7 @@ export default function BlueprintDetailPage({ params }) {
                   })}
                 </ul>
               </motion.div>
-            )}
+            ) : null}
           </AnimatePresence>
         </motion.div>
       </div>

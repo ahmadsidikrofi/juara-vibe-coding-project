@@ -14,6 +14,35 @@ import HistoryStrip from "@/components/remake-studio/HistoryStrip";
 import ResultsPanel from "@/components/remake-studio/ResultsPanel";
 import toast from "react-hot-toast";
 
+// Helper untuk kompresi base64 agar tidak melampaui limit 1MB Firestore
+const compressImageBase64 = (base64Str, maxWidth = 800, quality = 0.6) => {
+  return new Promise((resolve) => {
+    if (!base64Str || !base64Str.startsWith('data:image')) {
+      resolve(base64Str);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(base64Str); // Fallback ke asli jika gagal
+    img.src = base64Str;
+  });
+};
+
 export default function RemakeStudioPage({ params }) {
   const router = useRouter();
   const unwrappedParams = use(params);
@@ -39,7 +68,36 @@ export default function RemakeStudioPage({ params }) {
         const docRef = doc(db, "projects", projectId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProjectData(docSnap.data());
+          const docData = docSnap.data();
+          setProjectData(docData);
+
+          // Load existing remake history from database
+          let existingHistory = [];
+
+          if (docData.remakeHistory && Array.isArray(docData.remakeHistory)) {
+            // New format: array of remakes
+            existingHistory = docData.remakeHistory.map((item, idx) => ({
+              version: idx + 1,
+              prompt: item.prompt || item.title || `Versi ${idx + 1}`,
+              imageUrl: item.imageUrl || "",
+              title: item.title || `Versi ${idx + 1}`,
+              recipe: item.recipe || [],
+            }));
+          } else if (docData.remake && docData.remake.imageUrl) {
+            // Backward compat: migrate old single-object format
+            existingHistory = [{
+              version: 1,
+              prompt: docData.remake.title || "Versi 1",
+              imageUrl: docData.remake.imageUrl,
+              title: docData.remake.title || "Versi 1",
+              recipe: docData.remake.recipe || [],
+            }];
+          }
+
+          if (existingHistory.length > 0) {
+            setHistory(existingHistory);
+            setActiveVersionIndex(existingHistory.length - 1);
+          }
         }
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -111,12 +169,26 @@ export default function RemakeStudioPage({ params }) {
     setIsSaving(true);
     try {
       const docRef = doc(db, "projects", projectId);
+
+      // Build the full remakeHistory array and compress images to avoid Firestore 1MB limit
+      const remakeHistoryToSave = await Promise.all(history.map(async (item) => ({
+        imageUrl: await compressImageBase64(item.imageUrl, 800, 0.6),
+        recipe: item.recipe,
+        title: item.title || item.prompt,
+        prompt: item.prompt,
+      })));
+
+      const activeCompressedImageUrl = remakeHistoryToSave[activeVersionIndex].imageUrl;
+
       await updateDoc(docRef, {
+        // Keep legacy field pointing to latest for backward compat
         remake: {
-          imageUrl: activeVersion.imageUrl,
+          imageUrl: activeCompressedImageUrl,
           recipe: activeVersion.recipe,
           title: activeVersion.title || activeVersion.prompt,
-        }
+        },
+        // Full history array
+        remakeHistory: remakeHistoryToSave,
       });
       toast.success("Desain berhasil disimpan ke Blueprint 🎨", {
         duration: 5000,

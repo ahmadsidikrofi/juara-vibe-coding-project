@@ -95,9 +95,11 @@ export function Navbar() {
       return;
     }
     const total = wardrobeItems.reduce((acc, item) => {
-      if (item.ecoImpact && item.ecoImpact.air) {
+      // ecoImpact is nested inside item.diagnosis (saved by projectService)
+      const ecoImpact = item.ecoImpact || item.diagnosis?.ecoImpact;
+      if (ecoImpact && ecoImpact.air) {
         // Remove non-numeric characters and parse
-        const waterStr = item.ecoImpact.air.replace(/[^0-9]/g, '');
+        const waterStr = ecoImpact.air.replace(/[^0-9]/g, '');
         return acc + (parseInt(waterStr) || 0);
       }
       return acc;

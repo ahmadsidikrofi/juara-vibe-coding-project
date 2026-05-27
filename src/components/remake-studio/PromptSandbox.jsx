@@ -1,3 +1,4 @@
+import { useState, useEffect, useRef } from "react";
 import { Wand2, Sparkles } from "lucide-react";
 
 export default function PromptSandbox({
@@ -8,6 +9,23 @@ export default function PromptSandbox({
   isGenerating,
   userName
 }) {
+  // Elapsed time counter for generating state
+  const [elapsedBtn, setElapsedBtn] = useState(0);
+  const intervalRef = useRef(null);
+
+  useEffect(() => {
+    if (isGenerating) {
+      setElapsedBtn(0);
+      intervalRef.current = setInterval(() => {
+        setElapsedBtn((prev) => prev + 1);
+      }, 1000);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isGenerating]);
   return (
     <div className="flex flex-col gap-4">
       <label className="text-lg font-bold text-clay-ink mb-4 flex items-center gap-2">
@@ -41,8 +59,11 @@ export default function PromptSandbox({
       >
         {isGenerating ? (
           <>
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-            Membayangkan Desain...
+            <span className="relative flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white/60"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            </span>
+            <span>Merancang... {elapsedBtn}s</span>
           </>
         ) : (
           <>
