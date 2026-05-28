@@ -11,13 +11,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Tidak ada gambar yang diunggah' }, { status: 400 });
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File yang diunggah harus berupa gambar' }, { status: 400 });
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+      return NextResponse.json({ error: 'Ups... Format file tidak didukung. Fotonya pake format JPG atau PNG yaa 😊' }, { status: 400 });
     }
 
-    // Limit file size to 2MB
-    if (file.size > 2 * 1024 * 1024) {
-      return NextResponse.json({ error: 'Ukuran gambar maksimal 2MB' }, { status: 400 });
+    // Limit file size to 1MB
+    if (file.size > 1 * 1024 * 1024) {
+      return NextResponse.json({ error: 'Ups... Ukuran gambar melebihi batas 1MB. Silahkan kompres foto kamu yaa 😊' }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
@@ -83,6 +84,12 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Error in analyze API:', error);
+    const errMessage = error.message || '';
+    if (errMessage.includes('spending cap') || errMessage.includes('spending-cap') || errMessage.includes('429') || errMessage.includes('quota') || errMessage.includes('Quota') || errMessage.includes('limit')) {
+      return NextResponse.json({
+        error: 'Ups... kuota penggunaan AI kamu sudah habis nih. Silahkan coba lagi besok yaa 😊'
+      }, { status: 429 });
+    }
     return NextResponse.json({ error: 'Gagal menganalisis gambar: ' + error.message }, { status: 500 });
   }
 }

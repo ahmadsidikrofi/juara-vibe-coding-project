@@ -102,10 +102,10 @@ const MyWardrobePage = () => {
             <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="max-w-6xl mx-auto mb-12 flex items-center gap-4"
+                className="max-w-6xl mx-auto mb-12 w-full"
             >
-                <div className="flex w-full justify-between items-center max-sm:flex-col max-sm:items-start max-sm:gap-4">
-                    <div className="flex flex-col mx-auto items-start max-sm:gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 w-full">
+                    <div className="flex gap-4 items-start">
                         <button
                             onClick={() => router.push("/")}
                             className="p-3 bg-white rounded-full shadow-sm hover:shadow-md transition-all text-clay-ink hover:text-clay-sage hover:-translate-x-1 cursor-pointer"
@@ -120,10 +120,10 @@ const MyWardrobePage = () => {
                         </div>
                     </div>
 
-                    <div>
+                    <div className="w-full sm:w-auto flex justify-start sm:justify-end">
                         {/* View Toggle Tabs */}
                         {!loading && wardrobeItems.length > 0 && (
-                            <div className="ml-auto flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
+                            <div className="flex bg-white/60 p-1 rounded-xl shadow-sm border border-clay-ink/5">
                                 <button
                                     onClick={() => handleViewChange("masonry")}
                                     className={cn(

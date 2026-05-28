@@ -83,6 +83,12 @@ Output harus selalu valid JSON.`;
     return Response.json(parsedData);
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return Response.json({ error: "Gagal menghasilkan desain karena kendala server." }, { status: 500 });
+    const errMessage = error.message || '';
+    if (errMessage.includes('spending cap') || errMessage.includes('spending-cap') || errMessage.includes('429') || errMessage.includes('quota') || errMessage.includes('Quota') || errMessage.includes('limit')) {
+      return Response.json({
+        error: 'Ups... kuota penggunaan AI kamu sudah habis nih. Silahkan coba lagi besok yaa 😊'
+      }, { status: 429 });
+    }
+    return Response.json({ error: "Gagal menghasilkan desain karena kendala server: " + error.message }, { status: 500 });
   }
 }

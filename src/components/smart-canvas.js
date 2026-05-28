@@ -20,7 +20,7 @@ const compressImageBase64 = (base64Str, maxWidth = 800, quality = 0.6) => {
       const canvas = document.createElement('canvas');
       let width = img.width;
       let height = img.height;
-      
+
       if (width > maxWidth) {
         height = Math.round((height * maxWidth) / width);
         width = maxWidth;
@@ -77,11 +77,26 @@ export function SmartCanvas() {
 
   // Process and preview the file
   const handleFile = (file) => {
-    if (file.type.startsWith("image/")) {
-      const url = URL.createObjectURL(file);
-      setPreviewUrl(url);
-      setSelectedFile(file);
+    const validTypes = ["image/jpeg", "image/png", "image/jpg"];
+    if (!validTypes.includes(file.type)) {
+      toast.error("Ups... Format file tidak didukung. Fotonya pake format JPG atau PNG yaa 😊", {
+        position: "top-center",
+        duration: 5000
+      });
+      return;
     }
+
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error("Ups... Ukuran gambar melebihi batas 1MB. Silahkan kompres foto kamu yaa 😊", {
+        position: "top-center",
+        duration: 5000
+      });
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+    setPreviewUrl(url);
+    setSelectedFile(file);
   };
 
   // Clear the selected image
@@ -164,7 +179,7 @@ export function SmartCanvas() {
         readerBase64.onload = async () => {
           const rawBase64 = readerBase64.result;
           const compressedBase64 = await compressImageBase64(rawBase64, 800, 0.6);
-          
+
           sessionStorage.setItem("blueprintData", JSON.stringify({
             image: compressedBase64,
             analysis: data
@@ -179,10 +194,18 @@ export function SmartCanvas() {
 
     } catch (error) {
       console.error("Error analysis:", error);
-      toast.error("Maaf, ternyata permintaanmu gagal diproses. Coba lagi yukk", {
-        position: "top-center",
-        duration: 5000,
-      })
+      const msg = error.message || "";
+      if (msg.includes("spending cap") || msg.includes("spending-cap") || msg.includes("429") || msg.includes("Quota") || msg.includes("quota") || msg.includes("limit")) {
+        toast.error("Ups... kuota penggunaan AI kamu sudah habis nih. Silahkan coba lagi besok yaa 😊", {
+          position: "top-center",
+          duration: 7000,
+        });
+      } else {
+        toast.error(error.message || "Maaf, ternyata permintaanmu gagal diproses. Coba lagi yukk", {
+          position: "top-center",
+          duration: 5000,
+        });
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -204,7 +227,7 @@ export function SmartCanvas() {
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg, image/png"
           onChange={handleChange}
           className="hidden"
         />
