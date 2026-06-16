@@ -40,8 +40,8 @@ export function SilkHero() {
           className="text-5xl md:text-[5.5rem] font-black text-clay-ink leading-[1.1] tracking-tight animate-slide-up [animation-delay:100ms] pointer-events-auto"
           style={{ fontFamily: "'Comfortaa', 'Quicksand', 'Nunito', sans-serif" }}
         >
-          <span className="text-clay-sage/80">Wujudkan Gaya Baru</span> <br className="hidden md:block" />
-          <span className="text-clay-peach">Pakaian Lamamu.</span>
+          <span className="text-clay-sage/80" style={{ textShadow: "3px 3px #FDF9F3" }}>Wujudkan Gaya Baru</span> <br className="hidden md:block" />
+          <span className="text-clay-peach" style={{ textShadow: "3px 3px #FDF9F3" }}>Pakaian Lamamu.</span>
         </h1>
 
         {/* Descriptive Paragraph */}

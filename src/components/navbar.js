@@ -135,7 +135,7 @@ export function Navbar() {
         }`}
     >
       <div
-        className={`flex items-center justify-between w-full transition-all duration-1000 ease-in-out rounded-full ${scrolled
+        className={`flex items-center justify-between w-full transition-all duration-500 ease-in-out rounded-full ${scrolled
           ? "max-w-4xl py-2 px-4 bg-white/50 backdrop-blur-lg shadow-lg shadow-clay-ink/5 border border-clay-ink/10"
           : "max-w-6xl py-4 px-6 bg-white backdrop-blur-sm shadow-md border border-white/30"
           }`}
