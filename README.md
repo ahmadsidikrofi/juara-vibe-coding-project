@@ -1,10 +1,10 @@
 # Permak.in - Sustainable Fashion & Upcycling AI Assistant
 
-Permak.in adalah asisten AI ramah lingkungan (*sustainable fashion assistant*) berbasis Next.js dan didukung oleh **Google Gemini 2.5 Flash**. Platform ini dirancang untuk mendeteksi kerusakan pakaian secara instan, menyajikan panduan reparasi mandiri (DIY), menyusun pesan petunjuk bagi penjahit, serta memvisualisasikan rancangan *upcycling* (modifikasi kreatif) agar pakaian lama Anda kembali trendi dan berumur panjang.
+Permak.in adalah asisten AI ramah lingkungan (*sustainable fashion assistant*) berbasis Next.js dan didukung oleh **Google Gemini 2.5 Flash** dan model **Imagen 4 (`imagen-4.0-generate-001`)**. Platform ini dirancang untuk mendeteksi kerusakan pakaian secara instan, menyajikan panduan reparasi mandiri (DIY), menyusun pesan petunjuk bagi penjahit, serta memvisualisasikan rancangan *upcycling* (modifikasi kreatif) pakaian lama atau rusak Anda menjadi gaya baru yang segar dan tahan lama.
 
 ---
 
-## 📌 Masalah (The Problem)
+## 📌 The Problem
 
 1. **Krisis Limbah Tekstil (Fast Fashion)**: Industri mode memproduksi pakaian dalam jumlah besar dan berbiaya murah, memicu perilaku konsumtif di mana pakaian dengan kerusakan kecil langsung dibuang.
 2. **Ketiadaan Keterampilan Mending**: Generasi muda sering kali tidak memiliki keterampilan dasar menjahit (DIY) untuk memperbaiki pakaian sobek, kancing lepas, atau noda ringan.
@@ -18,7 +18,7 @@ Permak.in adalah asisten AI ramah lingkungan (*sustainable fashion assistant*) b
 1. **Smart Canvas Diagnosis**: Pengguna cukup mengunggah foto pakaian mereka yang bermasalah. AI akan langsung mendeteksi jenis pakaian, jenis bahan, titik kerusakan beserta koordinatnya, dan tingkat kesulitan perbaikan.
 2. **Panduan DIY Interaktif**: Menyediakan panduan langkah-demi-langkah (seperti teknik sulam *Sashiko* atau penambalan) bagi pengguna yang ingin memperbaiki sendiri pakaian mereka.
 3. **Instruksi Penjahit Siap Pakai**: Menghasilkan pesan instruksi permak teknis yang siap disalin dan dikirimkan langsung ke penjahit lokal untuk menghindari salah komunikasi.
-4. **Remake Studio**: Wadah berkreasi menggunakan AI di mana pengguna dapat menginstruksikan modifikasi (misal: "ubah kemeja jadi tote bag", "tambahkan renda", atau "potong jadi crop top") dan menerima resep modifikasi terstruktur.
+4. **Remake Studio & Visualisasi Imagen 4**: Wadah berkreasi menggunakan AI di mana pengguna dapat menginstruksikan modifikasi (misal: "ubah kemeja jadi tote bag", "tambahkan kain perca di celana bolong", atau "potong kemeja jadi crop top"). Gemini akan menyusun resep modifikasi terstruktur, dan model **Imagen 4 (`imagen-4.0-generate-001`)** akan memvisualisasikan hasil upcycling atau perbaikan tersebut secara realistis dan estetik.
 5. **Eco-Impact Estimator**: Mengalkulasi langsung volume air yang berhasil dihemat dan emisi karbon yang berhasil dicegah dengan memilih memperbaiki pakaian daripada membeli yang baru.
 
 ---
@@ -29,6 +29,7 @@ Permak.in adalah asisten AI ramah lingkungan (*sustainable fashion assistant*) b
 - 🎨 **Aestetika Premium Claymorphism**: Antarmuka visual kelas atas yang menggabungkan elemen *claymorphism* lembut, palet warna organik (`clay-cream`, `clay-sage`, `clay-pink`), efek paralaks sutra kinetik (*dynamic Silk background*), serta animasi transisi yang mulus dari Framer Motion.
 - 💧 **Gamifikasi Eco-Badge Global**: Terdapat penghitung akumulatif penyelamatan air di Navbar yang bersinkronisasi secara otomatis dengan seluruh koleksi pakaian di lemari digital pengguna (*My Wardrobe*).
 - 🏷️ **Interactive Damage Pinning**: AI memproyeksikan titik kerusakan langsung di atas kanvas gambar pakaian secara presisi menggunakan koordinat dinamis.
+- 🖼️ **Visualisasi AI Imagen 4**: Memanfaatkan model pembuatan gambar tercanggih **`imagen-4.0-generate-001`** untuk me-render rancangan pakaian baru hasil rekonstruksi/upcycling secara visual, memperjelas arah desain bagi pengguna maupun penjahit.
 
 ---
 
@@ -38,7 +39,7 @@ Permak.in adalah asisten AI ramah lingkungan (*sustainable fashion assistant*) b
 - **Bahasa**: JavaScript (ES6+)
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/) dengan variabel warna HSL kustom dan kustomisasi border organik.
 - **Database & Auth**: [Firebase Firestore](https://firebase.google.com/) & [Firebase Authentication (Google Provider)](https://firebase.google.com/docs/auth).
-- **Mesin AI**: [Google Gemini API](https://ai.google.dev/) menggunakan SDK `@google/genai` (Model: `gemini-2.5-flash`).
+- **Mesin AI**: [Google Gemini API](https://ai.google.dev/) menggunakan SDK `@google/genai` (Model: `gemini-2.5-flash` untuk analisis teks/JSON dan `imagen-4.0-generate-001` untuk generate visualisasi remake).
 - **Animasi & Transisi**: [Framer Motion](https://www.framer.com/motion/) & HTML5 Canvas.
 
 ---
